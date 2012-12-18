@@ -19,7 +19,7 @@ environments {
     }
     test {
         dataSource {
-            dbCreate = "update"
+            dbCreate = "create"//"update"
             url = "jdbc:h2:file:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
         }
     }
