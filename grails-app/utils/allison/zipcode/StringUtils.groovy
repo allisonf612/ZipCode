@@ -7,10 +7,10 @@ package allison.zipcode
  * Time: 5:28 PM
  */
 class StringUtils {
-    static stringIsIntegers = {code, zipcode ->    // Validate that the postalCode is
-        // composed of integers
+    static stringIsIntegers = {String str, obj ->    // Validate that the postalCode is
+                                               // composed of integers
         try {
-            for (i in code) {
+            for (i in str) {
                 Integer.parseInt(i)
             }
         } catch(NumberFormatException ex) {
