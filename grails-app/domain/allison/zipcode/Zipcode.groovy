@@ -29,7 +29,7 @@ class Zipcode {
         name(size: 1..100)
         countryCode(size: 1..20)
         lat(size: 0..90)
-        lng(size: 0..180)
+        lng(size: -180..180)
 //        adminCode1(validator: {code, zipcode ->
 //            code instanceof State
 //        })

@@ -21,7 +21,7 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
         def name = "Stillwater"
         def countryCode = "US"
         def lat = 45.06142
-        def lng = 92.84736
+        def lng = -92.84736
         def adminCode1 = "MN"
         def adminName1 = "Minnesota"
         def adminCode2 = "163"
@@ -63,7 +63,7 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
         def name = "Stillwater"
         def countryCode = "US"
         def lat = 100.0
-        def lng = -20
+        def lng = -200
         def adminCode1 = "M"
         def adminName1 = "Minnesota"
         def adminCode2 = "aa1"
