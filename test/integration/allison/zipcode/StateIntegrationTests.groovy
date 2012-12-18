@@ -77,7 +77,7 @@ class StateIntegrationTests {
 
     @Test
     void testCascadeDelete() {
-        def minnesota = new State(totalResultsCount: 1,
+        def minnesota = new State(totalResultsCount: 2,
                 abbreviation: "MN",
                 fullName: "Minnesota")
 
