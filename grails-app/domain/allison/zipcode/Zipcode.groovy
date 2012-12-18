@@ -11,7 +11,6 @@ package allison.zipcode
 
 
 class Zipcode {
-    static belongsTo = State
 
     String postalCode
     String name
@@ -42,6 +41,7 @@ class Zipcode {
         adminName2(size: 0..20)
         adminCode3(nullable: true) // adminCode3 and adminName3 are optional
         adminName3(nullable: true)
-
     }
+
+    static belongsTo = State
 }

@@ -1,22 +1,18 @@
 package allison.zipcode
 
-import static org.junit.Assert.*
+import grails.test.GrailsUnitTestCase
+//import grails.test.mixin.*
 import org.junit.*
 
-class ZipcodeIntegrationTests extends GroovyTestCase {
+import static org.junit.Assert.*
 
-    @Before
-    void setUp() {
-        // Setup logic here
-    }
+/**
+ * See the API for {@link grails.test.mixin.domain.DomainClassUnitTestMixin} for usage instructions
+ */
+//@TestFor(Zipcode)
+class ZipcodeUnitTests extends grails.test.GrailsUnitTestCase {
 
-    @After
-    void tearDown() {
-        // Tear down logic here
-    }
-
-    @Test
-    void testSave() {
+    void testValidZipcode() {
         def postalCode = "55082"
         def name = "Stillwater"
         def countryCode = "US"
@@ -28,37 +24,38 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
         def adminName2 = "Washington"
 
         def zipcode = new Zipcode(postalCode: postalCode,
-                        name: name,
-                        countryCode: countryCode,
-                        lat: lat,
-                        lng: lng,
-                        adminCode1: adminCode1,
-                        adminName1: adminName1,
-                        adminCode2: adminCode2,
-                        adminName2: adminName2)
+                name: name,
+                countryCode: countryCode,
+                lat: lat,
+                lng: lng,
+                adminCode1: adminCode1,
+                adminName1: adminName1,
+                adminCode2: adminCode2,
+                adminName2: adminName2)
 
-        zipcode.validate()
-        assertNotNull zipcode.save()   // zipcode is expected to be valid
+        mockForConstraintsTests(Zipcode, [ zipcode ])
 
-        // Compare the values from the database with those used initially
-        def foundZipcode = Zipcode.get(zipcode.id)
+        assertNotNull zipcode.validate()
+//        assertNotNull zipcode.save()   // zipcode is expected to be valid
+//
+//        // Compare the values from the database with those used initially
+//        def foundZipcode = Zipcode.get(zipcode.id)
+//
+//        assertEquals postalCode, foundZipcode.postalCode
+//        assertEquals name, foundZipcode.name
+//        assertEquals countryCode, foundZipcode.countryCode
+//        assertEquals lat, foundZipcode.lat, 0.001
+//        assertEquals lng, foundZipcode.lng, 0.001
+//        assertEquals adminCode1, foundZipcode.adminCode1
+//        assertEquals adminName1, foundZipcode.adminName1
+//        assertEquals adminCode2, foundZipcode.adminCode2
+//        assertEquals adminName2, foundZipcode.adminName2
+//        assertNull foundZipcode.adminCode3
+//        assertNull foundZipcode.adminName3
 
-        assertEquals postalCode, foundZipcode.postalCode
-        assertEquals name, foundZipcode.name
-        assertEquals countryCode, foundZipcode.countryCode
-        assertEquals lat, foundZipcode.lat, 0.001
-        assertEquals lng, foundZipcode.lng, 0.001
-        assertEquals adminCode1, foundZipcode.adminCode1
-        assertEquals adminName1, foundZipcode.adminName1
-        assertEquals adminCode2, foundZipcode.adminCode2
-        assertEquals adminName2, foundZipcode.adminName2
-        assertNull foundZipcode.adminCode3
-        assertNull foundZipcode.adminName3
     }
 
-
-    @Test
-    void testInvalidSave() {
+    void testConstraints() {
         def postalCode = "550824"
         def name = "Stillwater"
         def countryCode = "US"
@@ -79,6 +76,8 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
                 adminCode2: adminCode2,
                 adminName2: adminName2)
 
+        mockForConstraintsTests(Zipcode, [ zipcode ])
+
         assertFalse zipcode.validate()
         assertTrue zipcode.hasErrors()
 
@@ -94,7 +93,6 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
                 errors.getFieldError("lat").code
         assertEquals "min.notmet",
                 errors.getFieldError("lng").code
-//        assertEquals "validator.invalid",
         assertEquals "size.toosmall",
                 errors.getFieldError("adminCode1").code
         assertNull errors.getFieldError("adminName1")
@@ -103,7 +101,6 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
         assertNull errors.getFieldError("adminName2")
         assertNull errors.getFieldError("adminCode3")
         assertNull errors.getFieldError("adminName3")
-
 
     }
 }
