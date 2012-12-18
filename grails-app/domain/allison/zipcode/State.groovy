@@ -5,6 +5,7 @@ class State {
     String abbreviation
     String fullName
 
+    @Override
     String toString() {
         abbreviation + " - " + fullName
     }

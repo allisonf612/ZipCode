@@ -24,6 +24,7 @@ class Zipcode {
     String adminCode3
     String adminName3
 
+    @Override
     String toString() {
         postalCode
     }

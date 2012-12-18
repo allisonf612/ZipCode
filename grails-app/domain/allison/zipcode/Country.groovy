@@ -5,6 +5,7 @@ class Country {
     Map stateNames
     String name
 
+    @Override
     String toString() {
         name
     }
