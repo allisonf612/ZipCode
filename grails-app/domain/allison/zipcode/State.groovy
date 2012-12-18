@@ -5,6 +5,10 @@ class State {
     String abbreviation
     String fullName
 
+    String toString() {
+        abbreviation + " - " + fullName
+    }
+
     static constraints = {
         totalResultsCount(size: 0..10000)
         // The abbreviation and full name must match

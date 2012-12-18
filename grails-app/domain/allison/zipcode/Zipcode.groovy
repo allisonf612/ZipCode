@@ -24,26 +24,35 @@ class Zipcode {
     String adminCode3
     String adminName3
 
+    String toString() {
+        postalCode
+    }
+
     static constraints = {
         postalCode(size: 5..5, unique: true,
-            validator: StringUtils.stringIsIntegers)
-        name(size: 1..100)
-        countryCode(size: 1..20)
-        lat(min: 0d, max: 90d)
-        lng(min: -180d, max: 180d)
+            validator: StringUtils.stringIsIntegers,
+            nullable: false)
+        name(size: 1..100,
+             nullable: false)
+        countryCode(size: 1..20, nullable: true)
+        lat(min: 0d, max: 90d,
+            nullable: true)
+        lng(min: -180d, max: 180d,
+            nullable: true)
         // adminCode1 is the abbraviation for the state name
         // and it must match the state to which this zipcode belongs
         adminCode1(validator: {code, zipcode ->
             code == zipcode.state.abbreviation
-        })
+            }, nullable: false)
         // adminName1 is the full name of the state and it must match
         // the country's mapping from abbreviation to full name
         adminName1(validator: {name, zipcode ->
             name == zipcode.state.fullName
-        })
+            }, nullable: false)
         adminCode2(size: 3..3,
-            validator: StringUtils.stringIsIntegers)
-        adminName2(size: 0..20)
+            validator: StringUtils.stringIsIntegers,
+            nullable: true)
+        adminName2(size: 0..20, nullable: true)
         adminCode3(nullable: true) // adminCode3 and adminName3 are optional
         adminName3(nullable: true)
     }

@@ -5,6 +5,10 @@ class Country {
     Map stateNames
     String name
 
+    String toString() {
+        name
+    }
+
     static constraints = {
         name(unique: true)
         stateNames(nullable: false)
