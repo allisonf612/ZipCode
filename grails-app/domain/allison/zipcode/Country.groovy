@@ -7,6 +7,7 @@ class Country {
 
     static constraints = {
         name(unique: true)
+        stateNames(nullable: false)
     }
 
 
