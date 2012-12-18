@@ -11,6 +11,8 @@ package allison.zipcode
 
 
 class Zipcode {
+    static belongsTo = State
+
     String postalCode
     String name
     String countryCode
@@ -28,8 +30,8 @@ class Zipcode {
             validator: StringUtils.stringIsIntegers)
         name(size: 1..100)
         countryCode(size: 1..20)
-        lat(size: 0..90)
-        lng(size: -180..180)
+        lat(min: 0d, max: 90d)
+        lng(min: -180d, max: 180d)
 //        adminCode1(validator: {code, zipcode ->
 //            code instanceof State
 //        })

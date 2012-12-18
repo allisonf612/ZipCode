@@ -90,11 +90,10 @@ class ZipcodeIntegrationTests extends GroovyTestCase {
                 errors.getFieldError("postalCode").rejectedValue
         assertNull errors.getFieldError("name")
         assertNull errors.getFieldError("countryCode")
-        // TODO: how to do range on a double in constraints/validators?
-//        assertEquals "size.toobig",
-//                errors.getFieldError("lat").code
-//        assertEquals "size.toosmall",
-//                errors.getFieldError("lng").code
+        assertEquals "max.exceeded",
+                errors.getFieldError("lat").code
+        assertEquals "min.notmet",
+                errors.getFieldError("lng").code
 //        assertEquals "validator.invalid",
         assertEquals "size.toosmall",
                 errors.getFieldError("adminCode1").code
