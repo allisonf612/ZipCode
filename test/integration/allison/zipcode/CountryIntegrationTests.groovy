@@ -78,7 +78,7 @@ class CountryIntegrationTests {
         minnesota.addToZipcodes(zipcode)
         minnesota.save(flush: true)
 
-        assertEquals 1, unitedStates.states[0].zipcodes.size()
+        assertEquals 1, unitedStates.states.toList()[0].zipcodes.size()
 
         // Verify that the zipcode and state are there before delete
         assertNotNull Zipcode.get(zipcode.id)
