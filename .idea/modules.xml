@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ZipCode.iml" filepath="$PROJECT_DIR$/ZipCode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ZipCode-grailsPlugins.iml" filepath="$PROJECT_DIR$/ZipCode-grailsPlugins.iml" />
     </modules>
   </component>
 </project>
