@@ -5,7 +5,6 @@ import groovy.transform.EqualsAndHashCode
 
 @EqualsAndHashCode
 class State {
-    def scaffold = true
     String name
 
     @Override

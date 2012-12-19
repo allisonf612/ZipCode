@@ -13,8 +13,6 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode
 class Zipcode {
 
-    def scaffold = true
-
     String postalCode
     String name
     String countryCode
