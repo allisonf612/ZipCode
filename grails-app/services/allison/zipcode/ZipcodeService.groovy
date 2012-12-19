@@ -120,7 +120,14 @@ class ZipcodeService {
     }
 
     def generateTagCloud(Long id) {
-        //TODO
+        def country = Country.get(id)
+        if (!country) { // Zip codes are an empty map if the country is missing
+            return [:]
+        }
+        return country.states.inject([:]) { result, state ->
+            result[state.name] = state.zipcodes.size()
+            result
+            }
     }
 
 
