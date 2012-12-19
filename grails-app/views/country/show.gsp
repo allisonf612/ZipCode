@@ -14,8 +14,8 @@
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
 				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
-                <li><g:link class="load" action="load">Load</g:link></li>
-                <li><g:link class="clear" action="clear">Clear</g:link></li>
+                <li><g:link action="load" id="${countryInstance?.id}">Load</g:link></li>
+                <li><g:link action="clear" id="${countryInstance?.id}">Clear</g:link></li>
 			</ul>
 		</div>
 		<div id="show-country" class="content scaffold-show" role="main">
@@ -55,6 +55,9 @@
 				</g:if>
 			
 			</ol>
+
+            <tc:tagCloud tags="${cloudData}" action="show" controller="state" id="${countryInstance?.id}" paramName="stateName" color="${[start: '#777', end: '#00f']}"/>
+
 			<g:form>
 				<fieldset class="buttons">
 					<g:hiddenField name="id" value="${countryInstance?.id}" />

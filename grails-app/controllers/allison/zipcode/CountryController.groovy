@@ -1,14 +1,5 @@
 package allison.zipcode
 
-/**
- * Using a command to keep adding a state off the country creation form
- */
-class CountryCreationCommand {
-    String name
-    String countryCode
-
-
-}
 
 
 class CountryController {
@@ -21,6 +12,12 @@ class CountryController {
         [cloudData: cloudData]
 
     }
+
+//    def create() {
+//        [countryInstance: new Country(params)]
+//    }
+
+
 
     def show(Long id) {
         def countryInstance = Country.get(id)
