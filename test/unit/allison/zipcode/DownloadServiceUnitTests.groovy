@@ -42,7 +42,6 @@ class DownloadServiceUnitTests {
         assertEquals testString, downloadedString
 
         // Cleanup
-        File dir = new File("test/temp")
-        dir.delete()
+        FileUtils.deleteDirectory(new File("test/temp"))
     }
 }
