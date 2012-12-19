@@ -16,7 +16,7 @@ class ZipcodeService {
             throw new UnableToDownloadException(message: "Unable to find country")
         }
 
-        def file = ZipcodeService.getCountryFileName(country)
+        def file = DownloadService.getCountryFileName(country)
 
         try {
             // Download zip codes
@@ -50,7 +50,7 @@ class ZipcodeService {
      * @param xml
      * @return
      */
-    def slurpZipcode(Country country, xml) {
+    static slurpZipcode(xml) {
 
         new Zipcode (
                 postalCode: xml.postalcode.text(),

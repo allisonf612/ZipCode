@@ -28,6 +28,16 @@ class ZipcodeServiceIntegrationTests {
 
     @Test
     void testSlurpZipcode() {
+        def postalCode = "75462"
+        def name = "Paris"
+        def countryCode = "US"
+        def lat = 33.68045d
+        def lng = -95.49054d
+        def adminCode1 = "TX"
+        def adminName1 = "Texas"
+        def adminCode2 = "277"
+        def adminName2 = "Lamar"
+
         def xmlTest = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
                 "<geonames>" +
                 "<totalResultsCount>43634</totalResultsCount>" +
@@ -46,12 +56,34 @@ class ZipcodeServiceIntegrationTests {
                 "</code>" +
                 "</geonames>"
 
-        def xml = new XmlSlurper().parsetext(xmlText)
+        def zipcode = new Zipcode (
+                postalCode: "75462",
+                name: "Paris",
+                countryCode: "US",
+                lat: 33.68045,
+                lng: -95.49054,
+                adminCode1: "TX",
+                adminName1: "Texas",
+                adminCode2: "277",
+                adminName2: "Lamar",
+        )
+
+        def xml = new XmlSlurper().parseText(xmlTest)
         def allCodes = xml.code
-        def zipcode
-        for (code in allCodes) {
-            zipcode = slurpZipcode(country, xml)
-        }
+        assertEquals 1, allCodes.size()
+        def slurpedZipcode = ZipcodeService.slurpZipcode(allCodes[0])
+
+        assertEquals zipcode.postalCode, slurpedZipcode.postalCode
+        assertEquals zipcode.name, slurpedZipcode.name
+        assertEquals zipcode.countryCode, slurpedZipcode.countryCode
+        assertEquals zipcode.lat, slurpedZipcode.lat, 0.0001
+        assertEquals zipcode.lng, slurpedZipcode.lng, 0.0001
+        assertEquals zipcode.adminCode1, slurpedZipcode.adminCode1
+        assertEquals zipcode.adminName1, slurpedZipcode.adminName1
+        assertEquals zipcode.adminCode2, slurpedZipcode.adminCode2
+        assertEquals zipcode.adminName2, slurpedZipcode.adminName2
+        assertEquals zipcode.adminCode3, slurpedZipcode.adminCode3
+        assertEquals zipcode.adminName3, slurpedZipcode.adminName3
 
 
     }
