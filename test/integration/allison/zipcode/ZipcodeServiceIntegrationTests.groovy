@@ -5,10 +5,15 @@ import org.junit.*
 
 class ZipcodeServiceIntegrationTests {
     def zipcodeService
+    def unitedStates
 
     @Before
     void setUp() {
-        // Setup logic here
+        unitedStates = new Country(name: "United States of America",
+                countryCode: "US").save()
+
+        assertTrue unitedStates.validate()
+        assertNotNull unitedStates.save()
     }
 
     @After
@@ -17,17 +22,55 @@ class ZipcodeServiceIntegrationTests {
     }
 
     @Test
-    void testLoadZipcodes() {
+    void testLoad() {
+        fail("testLoad not implemented")
+    }
 
+    @Test
+    void testSlurpZipcode() {
+        fail("testSlurpZipcode not implemented")
+    }
+
+
+    @Test
+    void testAddZipcodeToState() {
+        def validZipcode = new Zipcode(postalCode: "55082",
+                name: "Stillwater",
+                countryCode: "US",
+                lat: 45.06142,
+                lng: -92.84736,
+                adminCode1: "MN",
+                adminName1: "Minnesota",
+                adminCode2: "163",
+                adminName2: "Washington")
+
+        def invalidZipcode = new Zipcode(postalCode: "55082",
+                name: "Stillwater",
+                countryCode: "US",
+                lat: 45.06142,
+                lng: -92.84736,
+                adminCode1: "WI",
+                adminName1: "Wisconsin",
+                adminCode2: "163",
+                adminName2: "Washington")
+
+        def state = ZipcodeService.getState(unitedStates, "Minnesota")
+
+        // Verify zipcodes are not there
+        assertFalse validZipcode in state.zipcodes
+        assertFalse invalidZipcode in state.zipcodes
+
+        // successful add of valid zipcode
+        ZipcodeService.addZipcodeToState(state, validZipcode)
+        assertTrue validZipcode in state.zipcodes
+
+        // Unsuccessful add of invalid zipcode
+        ZipcodeService.addZipcodeToState(state, invalidZipcode)
+        assertFalse invalidZipcode in state.zipcodes
     }
 
     @Test
     void testGetState() {
-        def unitedStates = new Country(name: "United States of America",
-                countryCode: "US")
-
-        assertTrue unitedStates.validate()
-        assertNotNull unitedStates.save()
 
         def stateName = "Minnesota"
 
@@ -71,14 +114,9 @@ class ZipcodeServiceIntegrationTests {
 
     }
 
+
     @Test
     void testClearZipcodes() {
-
-        def unitedStates = new Country(name: "United States of America",
-                                          countryCode: "US")
-
-        assertTrue unitedStates.validate()
-        assertNotNull unitedStates.save()
 
         // Add some states with zipcodes
         def minnesota = new State(name: "Minnesota")
@@ -132,5 +170,10 @@ class ZipcodeServiceIntegrationTests {
         assertFalse Zipcode.exists(zipcode2.id)
 
 
+    }
+
+    @Test
+    void testGenerateTagCloud() {
+        fail("testGenerateTagCloud not implemented")
     }
 }
