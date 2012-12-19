@@ -5,7 +5,6 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode
 class Country {
 
-//    Map stateNames
     String name
     String countryCode
 

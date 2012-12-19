@@ -1,12 +1,39 @@
 package allison.zipcode
 
-import org.springframework.dao.DataIntegrityViolationException
+/**
+ * Using a command to keep adding a state off the country creation form
+ */
+class CountryCreationCommand {
+    String name
+    String countryCode
+
+
+}
+
 
 class CountryController {
     static scaffold = true
-
-    def downloadService // Inject the download and zipcode services
     def zipcodeService
+
+    def tagCloud(Long id) {
+        def cloudData = zipcodeService.generateTagCloud(id)
+
+        [cloudData: cloudData]
+
+    }
+
+    def show(Long id) {
+        def countryInstance = Country.get(id)
+        if (!countryInstance) {
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'country.label', default: 'Country'), id])
+            redirect(action: "list")
+            return
+        }
+
+        def cloudData = zipcodeService.generateTagCloud(id)
+
+        [countryInstance: countryInstance, cloudData: cloudData]
+    }
 
     def load(Long id) {
         try {
@@ -26,5 +53,7 @@ class CountryController {
 
         redirect(action: "show", id: 1)
     }
+
+
 
 }
