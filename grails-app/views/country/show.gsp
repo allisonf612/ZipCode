@@ -14,6 +14,8 @@
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
 				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
+                <li><g:link class="load" action="load">Load</g:link></li>
+                <li><g:link class="clear" action="clear">Clear</g:link></li>
 			</ul>
 		</div>
 		<div id="show-country" class="content scaffold-show" role="main">
@@ -32,11 +34,11 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${countryInstance?.stateNames}">
+				<g:if test="${countryInstance?.countryCode}">
 				<li class="fieldcontain">
-					<span id="stateNames-label" class="property-label"><g:message code="country.stateNames.label" default="State Names" /></span>
+					<span id="countryCode-label" class="property-label"><g:message code="country.countryCode.label" default="Country Code" /></span>
 					
-						<span class="property-value" aria-labelledby="stateNames-label"><g:fieldValue bean="${countryInstance}" field="stateNames"/></span>
+						<span class="property-value" aria-labelledby="countryCode-label"><g:fieldValue bean="${countryInstance}" field="countryCode"/></span>
 					
 				</li>
 				</g:if>

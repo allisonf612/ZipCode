@@ -26,7 +26,7 @@
 					
 						<g:sortableColumn property="name" title="${message(code: 'country.name.label', default: 'Name')}" />
 					
-						<g:sortableColumn property="stateNames" title="${message(code: 'country.stateNames.label', default: 'State Names')}" />
+						<g:sortableColumn property="countryCode" title="${message(code: 'country.countryCode.label', default: 'Country Code')}" />
 					
 					</tr>
 				</thead>
@@ -36,7 +36,7 @@
 					
 						<td><g:link action="show" id="${countryInstance.id}">${fieldValue(bean: countryInstance, field: "name")}</g:link></td>
 					
-						<td>${fieldValue(bean: countryInstance, field: "stateNames")}</td>
+						<td>${fieldValue(bean: countryInstance, field: "countryCode")}</td>
 					
 					</tr>
 				</g:each>
