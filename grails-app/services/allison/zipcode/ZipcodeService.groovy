@@ -28,14 +28,10 @@ class ZipcodeService {
             def xml = new XmlSlurper().parse(file)
             def allCodes = xml.code
             def zipcode
-            def totalCount = 0
             for (code in allCodes) {
-                totalCount++
                 zipcode = ZipcodeService.slurpZipcode(code)
-                println "Just slurped: ${zipcode}"
                 ZipcodeService.addZipcodeToCountry(country, zipcode)
             }
-            print "Total Count: ${count}"
 
             // Generate Tag Cloud
             generateTagCloud(id)
@@ -53,8 +49,7 @@ class ZipcodeService {
      * @return
      */
     static slurpZipcode(xml) {
-        println "slurpZipcodes xml section: ${xml}"
-        return new Zipcode (
+        new Zipcode (
                 postalCode: xml.postalcode.text(),
                 name: xml.name.text(),
                 countryCode: xml.countryCode.text(),
@@ -92,7 +87,6 @@ class ZipcodeService {
      * @return
      */
     static State getState(Country country, String stateName) {
-        println "getState's stateName is a string: ${stateName instanceof String}"
         // Don't just match the stateName, verify the correct country
         def state = State.findByName(stateName)
 
