@@ -15,6 +15,9 @@ class DownloadService {
         try {
             out << new URL(address).openStream()
         } catch (UnknownHostException ex) {
+            // Cleanup
+            file.delete()
+
             return "Unable to download from url: ${address}"
         }
         out.close()
