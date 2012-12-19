@@ -1,5 +1,8 @@
 package allison.zipcode
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
 class Country {
 
 //    Map stateNames

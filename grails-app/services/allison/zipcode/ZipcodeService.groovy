@@ -31,7 +31,8 @@ class ZipcodeService {
             def allCodes = xml.code
             def zipcode
             for (code in allCodes) {
-                zipcode = slurpZipcode(country, xml)
+                zipcode = ZipcodeService.slurpZipcode(xml)
+                println "Just slurped: ${zipcode}"
                 ZipcodeService.addZipcodeToCountry(country, zipcode)
             }
 

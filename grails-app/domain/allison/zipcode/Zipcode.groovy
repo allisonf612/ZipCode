@@ -1,5 +1,6 @@
 package allison.zipcode
 
+import groovy.transform.EqualsAndHashCode
 //enum State {
 //    AK, AL, AR, AS, AZ, CA, CO, CT, DC, DE, FL,
 //    FM, GA, GU, HI, IA, ID, IL, IN, KS, KY, LA,
@@ -9,8 +10,10 @@ package allison.zipcode
 //    WI, WV, WY
 //}
 
-
+@EqualsAndHashCode
 class Zipcode {
+
+    def scaffold = true
 
     String postalCode
     String name
