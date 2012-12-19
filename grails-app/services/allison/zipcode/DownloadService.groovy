@@ -9,7 +9,7 @@ class DownloadService {
     /**
      * @param address
      */
-    String download(String filename, String address)
+    static download(String filename, String address)
     {
         File file = new File(filename)
         file.getParentFile().mkdirs()
@@ -25,7 +25,10 @@ class DownloadService {
             file.delete()
 
             throw new UnableToDownloadException(message: "Unable to download from url: ${address}")
-        } finally {
+        } catch (IOException ex) {
+            throw new UnableToDownloadException(message: "Unable to download from url: ${address}")
+        }
+        finally {
             out.close()
 
         }

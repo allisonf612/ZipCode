@@ -10,14 +10,28 @@ import org.junit.*
  */
 @TestFor(DownloadService)
 class DownloadServiceUnitTests {
-    def downloadService
 
     void setUp() {
-        downloadService = new DownloadService()
+
     }
 
     void tearDown() {
         FileUtils.deleteDirectory(new File("test/temp"))
+    }
+
+    /**
+     * Test DownloadService.getCountryFileName
+     */
+    void testGetCountryFileName() {
+        def unitedStates = new Country(name: "United States of America",
+                countryCode: "US")
+        assertNotNull unitedStates
+
+        assertEquals "web-app/data/US",
+                DownloadService.getCountryFileName(unitedStates)
+
+        assertEquals "web-app/data/temp",
+                DownloadService.getCountryFileName(null)
     }
 
     void testSuccessfulDownload() {
@@ -34,8 +48,7 @@ class DownloadServiceUnitTests {
         // 'Download' the test file
         def uploadFilename = uploadFile.absolutePath
 
-        assertEquals "Successfully downloaded zip codes",
-                downloadService.download("test/temp/download_test",
+        DownloadService.download("test/temp/download_test",
                         "file://${uploadFilename}")
 
         File downloadFile = new File("test/temp/download_test")
@@ -53,9 +66,18 @@ class DownloadServiceUnitTests {
 
 
     void testUnsuccessfulDownload() {
-        def invalidAddress = "http://dfklsdlkfjsldkfjsdklfjsdlkfldkslfkj"
-        assertEquals "Unable to download from url: ${invalidAddress}",
-                downloadService.download("test/temp/download_test",
+        def address = "http://api.geonames.org/postalCodeSearch?placename=US&username=allisoneer"
+
+        try {
+            assertEquals "Unable to download from url: ${address}",
+                shouldFail(UnableToDownloadException) {
+                    DownloadService.download("test/temp/download_test",
                         invalidAddress)
+                }
+        } catch (Exception ex) {
+            fail()
+        }
     }
+
+    // TODO: test null input, test unabletodownloadexception
 }

@@ -5,7 +5,7 @@ package allison.zipcode
 import org.junit.*
 import grails.test.mixin.*
 
-@TestFor(ZipcodeController)
+//@TestFor(ZipcodeController)
 @Mock(Zipcode)
 class ZipcodeControllerUnitTests {
 
