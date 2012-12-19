@@ -5,15 +5,21 @@ class DownloadService {
     /**
      * @param address
      */
-    def download(String filename, String address)
+    String download(String filename, String address)
     {
         File file = new File(filename)
         file.getParentFile().mkdirs()
         file.createNewFile()
         def fileOut = new FileOutputStream(file)
         def out = new BufferedOutputStream(fileOut)
-        out << new URL(address).openStream()
+        try {
+            out << new URL(address).openStream()
+        } catch (UnknownHostException ex) {
+            return "Unable to download from url: ${address}"
+        }
         out.close()
+
+        return "Successfully downloaded zip codes"
     }
 
 

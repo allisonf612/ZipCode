@@ -10,8 +10,17 @@ import org.junit.*
  */
 @TestFor(DownloadService)
 class DownloadServiceUnitTests {
+    def downloadService
 
-    void testDownload() {
+    void setUp() {
+        downloadService = new DownloadService()
+    }
+
+    void tearDown() {
+        FileUtils.deleteDirectory(new File("test/temp"))
+    }
+
+    void testSuccessfulDownload() {
         // Write a temporary test file
         File uploadFile = new File("test/temp/upload_test")
         uploadFile.getParentFile().mkdirs()
@@ -23,11 +32,11 @@ class DownloadServiceUnitTests {
         outs.close()
 
         // 'Download' the test file
-        def downloadService = new DownloadService()
         def uploadFilename = uploadFile.absolutePath
 
-        downloadService.download("test/temp/download_test",
-                "file://${uploadFilename}")
+        assertEquals "Successfully downloaded zip codes",
+                downloadService.download("test/temp/download_test",
+                        "file://${uploadFilename}")
 
         File downloadFile = new File("test/temp/download_test")
         def fileIn = new FileReader(downloadFile)
@@ -40,8 +49,13 @@ class DownloadServiceUnitTests {
 
         // Verify that what we uploaded is what was downloaded
         assertEquals testString, downloadedString
+    }
 
-        // Cleanup
-        FileUtils.deleteDirectory(new File("test/temp"))
+
+    void testUnsuccessfulDownload() {
+        def invalidAddress = "http://dfklsdlkfjsldkfjsdklfjsdlkfldkslfkj"
+        assertEquals "Unable to download from url: ${invalidAddress}",
+                downloadService.download("test/temp/download_test",
+                        invalidAddress)
     }
 }
