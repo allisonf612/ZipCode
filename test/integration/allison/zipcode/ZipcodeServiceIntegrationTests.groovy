@@ -28,12 +28,39 @@ class ZipcodeServiceIntegrationTests {
 
     @Test
     void testSlurpZipcode() {
-        fail("testSlurpZipcode not implemented")
+        def xmlTest = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<geonames>" +
+                "<totalResultsCount>43634</totalResultsCount>" +
+                "<code>" +
+                "<postalcode>75462</postalcode>" +
+                "<name>Paris</name>" +
+                "<countryCode>US</countryCode>" +
+                "<lat>33.68045</lat>" +
+                "<lng>-95.49054</lng>" +
+                "<adminCode1>TX</adminCode1>" +
+                "<adminName1>Texas</adminName1>" +
+                "<adminCode2>277</adminCode2>" +
+                "<adminName2>Lamar</adminName2>" +
+                "<adminCode3/>" +
+                "<adminName3/>" +
+                "</code>" +
+                "</geonames>"
+
+        def xml = new XmlSlurper().parsetext(xmlText)
+        def allCodes = xml.code
+        def zipcode
+        for (code in allCodes) {
+            zipcode = slurpZipcode(country, xml)
+        }
+
+
     }
 
 
     @Test
-    void testAddZipcodeToState() {
+    void testAddZipcodeToCountry() {
+        def stateName = "Minnesota"
+
         def validZipcode = new Zipcode(postalCode: "55082",
                 name: "Stillwater",
                 countryCode: "US",
@@ -44,7 +71,7 @@ class ZipcodeServiceIntegrationTests {
                 adminCode2: "163",
                 adminName2: "Washington")
 
-        def invalidZipcode = new Zipcode(postalCode: "55082",
+        def invalidZipcode = new Zipcode(postalCode: "55082a",
                 name: "Stillwater",
                 countryCode: "US",
                 lat: 45.06142,
@@ -54,18 +81,17 @@ class ZipcodeServiceIntegrationTests {
                 adminCode2: "163",
                 adminName2: "Washington")
 
-        def state = ZipcodeService.getState(unitedStates, "Minnesota")
-
-        // Verify zipcodes are not there
-        assertFalse validZipcode in state.zipcodes
-        assertFalse invalidZipcode in state.zipcodes
+        // Verify zipcodes do not exist
+        assertNull Zipcode.findByPostalCode(validZipcode.postalCode)
+        assertNull Zipcode.findByPostalCode(invalidZipcode.postalCode)
 
         // successful add of valid zipcode
-        ZipcodeService.addZipcodeToState(state, validZipcode)
+        ZipcodeService.addZipcodeToCountry(unitedStates, validZipcode)
+        def state = State.findByName("Minnesota")
         assertTrue validZipcode in state.zipcodes
 
         // Unsuccessful add of invalid zipcode
-        ZipcodeService.addZipcodeToState(state, invalidZipcode)
+        ZipcodeService.addZipcodeToCountry(unitedStates, invalidZipcode)
         assertFalse invalidZipcode in state.zipcodes
     }
 

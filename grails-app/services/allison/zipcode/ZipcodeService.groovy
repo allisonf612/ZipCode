@@ -1,9 +1,5 @@
 package allison.zipcode
 
-import groovy.util.XmlSlurper
-
-
-
 class ZipcodeService {
 
     def downloadService
@@ -33,8 +29,10 @@ class ZipcodeService {
             // Slurp and save in Domain
             def xml = new XmlSlurper().parse(file)
             def allCodes = xml.code
+            def zipcode
             for (code in allCodes) {
-                slurpZipcode(country, xml)
+                zipcode = slurpZipcode(country, xml)
+                ZipcodeService.addZipcodeToCountry(country, zipcode)
             }
 
             // Generate Tag Cloud
@@ -54,8 +52,7 @@ class ZipcodeService {
      */
     def slurpZipcode(Country country, xml) {
 
-        def stateName = xml.adminName1.text()
-        def zipcode = new Zipcode (
+        new Zipcode (
                 postalCode: xml.postalcode.text(),
                 name: xml.name.text(),
                 countryCode: xml.countryCode.text(),
@@ -69,14 +66,13 @@ class ZipcodeService {
                 adminName3: xml.adminName3.text()
         )
 
-        def state = ZipcodeService.getState(country, stateName)
-        // State has been initialized
-
-        ZipcodeService.addZipcodeToState(state, zipcode)
     }
 
 
-    static addZipcodeToState(State state, Zipcode zipcode) {
+    static addZipcodeToCountry(Country country, Zipcode zipcode) {
+        def state = ZipcodeService.getState(country, zipcode.adminName1)
+        // State has been initialized
+
         // Only add the zipcode if it is valid
         state.addToZipcodes(zipcode)
         if (zipcode.validate()) {
