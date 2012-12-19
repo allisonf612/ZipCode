@@ -2,8 +2,6 @@ package allison.zipcode
 
 class ZipcodeService {
 
-    def downloadService
-
     /**
      * Download the zipcodes, add them to the Domain, and update the tag cloud
      * @param id
@@ -20,7 +18,7 @@ class ZipcodeService {
 
         try {
             // Download zip codes
-            downloadService.download(file,
+            DownloadService.download(file,
                     "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer")
 
             // Only clear the zip codes on a successful download
@@ -30,11 +28,14 @@ class ZipcodeService {
             def xml = new XmlSlurper().parse(file)
             def allCodes = xml.code
             def zipcode
+            def totalCount = 0
             for (code in allCodes) {
-                zipcode = ZipcodeService.slurpZipcode(xml)
+                totalCount++
+                zipcode = ZipcodeService.slurpZipcode(code)
                 println "Just slurped: ${zipcode}"
                 ZipcodeService.addZipcodeToCountry(country, zipcode)
             }
+            print "Total Count: ${count}"
 
             // Generate Tag Cloud
             generateTagCloud(id)
@@ -52,8 +53,8 @@ class ZipcodeService {
      * @return
      */
     static slurpZipcode(xml) {
-
-        new Zipcode (
+        println "slurpZipcodes xml section: ${xml}"
+        return new Zipcode (
                 postalCode: xml.postalcode.text(),
                 name: xml.name.text(),
                 countryCode: xml.countryCode.text(),
@@ -91,10 +92,11 @@ class ZipcodeService {
      * @return
      */
     static State getState(Country country, String stateName) {
+        println "getState's stateName is a string: ${stateName instanceof String}"
         // Don't just match the stateName, verify the correct country
-        def state = State.findByNameAndCountry(stateName, country)
+        def state = State.findByName(stateName)
 
-        if (!state) { // First zipcode for this state so create it
+        if (!state || !(state in country.states)) { // First zipcode for this state so create it
             state = new State(name: stateName)
             country.addToStates(state)
             country.save(flush: true)
