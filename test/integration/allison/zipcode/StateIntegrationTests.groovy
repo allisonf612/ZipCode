@@ -8,7 +8,9 @@ class StateIntegrationTests {
 
     @Before
     void setUp() {
-        unitedStates = Country.findByName("United States of America")
+//        unitedStates = Country.findByName("United States of America")
+        unitedStates = new Country(name: "United States of America",
+                countryCode: "US").save()
     }
 
     @After
@@ -18,29 +20,23 @@ class StateIntegrationTests {
 
     @Test
     void testValidState() {
-        def minnesota = new State(totalResultsCount: 1,
-                abbreviation: "MN",
-                fullName: "Minnesota")
+        def minnesota = new State(name: "Minnesota")
 
-        unitedStates = Country.findByName("United States of America")
+//        unitedStates = Country.findByName("United States of America")
         unitedStates.addToStates(minnesota)
         assertNotNull unitedStates.save(flush: true)
 
         def foundMinnesota = State.get(minnesota.id)
         assertNotNull foundMinnesota
 
-        assertEquals 1, foundMinnesota.totalResultsCount
-        assertEquals "MN", foundMinnesota.abbreviation
-        assertEquals "Minnesota", foundMinnesota.fullName
+        assertEquals "Minnesota", foundMinnesota.name
     }
 
     @Test
     void testHasMany() {
-        def minnesota = new State(totalResultsCount: 1,
-                abbreviation: "MN",
-                fullName: "Minnesota")
+        def minnesota = new State(name: "Minnesota")
 
-        unitedStates = Country.findByName("United States of America")
+//        unitedStates = Country.findByName("United States of America")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
 
@@ -77,11 +73,9 @@ class StateIntegrationTests {
 
     @Test
     void testCascadeDelete() {
-        def minnesota = new State(totalResultsCount: 2,
-                abbreviation: "MN",
-                fullName: "Minnesota")
+        def minnesota = new State(name: "Minnesota")
 
-        unitedStates = Country.findByName("United States of America")
+//        unitedStates = Country.findByName("United States of America")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
 

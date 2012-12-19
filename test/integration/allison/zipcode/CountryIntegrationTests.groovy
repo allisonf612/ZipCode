@@ -4,10 +4,12 @@ import static org.junit.Assert.*
 import org.junit.*
 
 class CountryIntegrationTests {
+    def unitedStates
 
     @Before
     void setUp() {
-        // Setup logic here
+        unitedStates = new Country(name: "United States of America",
+                countryCode: "US").save()
     }
 
     @After
@@ -15,39 +17,44 @@ class CountryIntegrationTests {
         // Tear down logic here
     }
 
-    @Test
-    void testBootstrap() {
-        def countries = Country.list()
-        assertEquals 1, countries.size()
+//    @Test
+//    void testBootstrap() {
+//        def countries = Country.list()
+//        assertEquals 1, countries.size()
+//
+//        def unitedStates = countries[0]
+//        assertEquals "United States of America", unitedStates.name
+//        assertEquals "Alaska", unitedStates.stateNames["AK"]
+//        assertEquals "Missouri", unitedStates.stateNames["MO"]
+//    }
 
-        def unitedStates = countries[0]
-        assertEquals "United States of America", unitedStates.name
-        assertEquals "Alaska", unitedStates.stateNames["AK"]
-        assertEquals "Missouri", unitedStates.stateNames["MO"]
-    }
-
+    /**
+     * Test the constraints on the properties of Country
+     */
     @Test
     void testConstraints() {
-        def unitedStatesDup = new Country(name: "United States of America")
+        def unitedStatesDup = new Country(name: "United States of America",
+                                          countryCode: "US")
 
-        // USA is already in the db from bootstrap, so the name will not be unique
+        // Verify that country codes and names must be unique
         assertFalse unitedStatesDup.validate()
         def errors = unitedStatesDup.errors
 
         assertEquals "unique",
                 errors.getFieldError("name").code
-        assertEquals "nullable", errors.getFieldError("stateNames").code
+        assertEquals "unique", errors.getFieldError("countryCode").code
+
+        // Verify that name is nullable
+        def canada = new Country(countryCode: "CA")
+        assertTrue canada.validate()
+
     }
 
     @Test
     void testHasMany() {
-        def unitedStates = Country.findByName("United States of America")
-        def minnesota = new State(totalResultsCount: 1,
-                                    abbreviation: "MN",
-                                    fullName: "Minnesota")
-        def wisconsin = new State(totalResultsCount: 1,
-                                    abbreviation: "WI",
-                                    fullName: "Wisconsin")
+//        def unitedStates = Country.findByName("United States of America")
+        def minnesota = new State(name: "Minnesota")
+        def wisconsin = new State(name: "Wisconsin")
 
         unitedStates.addToStates(minnesota)
         unitedStates.addToStates(wisconsin)
@@ -58,10 +65,8 @@ class CountryIntegrationTests {
 
     @Test
     void testCascade() {
-        def unitedStates = Country.findByName("United States of America")
-        def minnesota = new State(totalResultsCount: 1,
-                abbreviation: "MN",
-                fullName: "Minnesota")
+//        def unitedStates = Country.findByName("United States of America")
+        def minnesota = new State(name: "Minnesota")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
 

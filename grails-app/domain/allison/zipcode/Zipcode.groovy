@@ -35,20 +35,25 @@ class Zipcode {
             nullable: false)
         name(size: 1..100,
              nullable: false)
-        countryCode(size: 1..20, nullable: true)
+        countryCode(size: 2..2, nullable: false,
+                validator: {code, zipcode ->
+                    code == zipcode.state.country.countryCode
+                })
         lat(min: 0d, max: 90d,
             nullable: true)
         lng(min: -180d, max: 180d,
             nullable: true)
         // adminCode1 is the abbraviation for the state name
         // and it must match the state to which this zipcode belongs
-        adminCode1(validator: {code, zipcode ->
-            code == zipcode.state.abbreviation
-            }, nullable: false)
+        adminCode1(
+//                validator: {code, zipcode ->
+//            code == zipcode.state.abbreviation
+//            },
+                nullable: false)
         // adminName1 is the full name of the state and it must match
         // the country's mapping from abbreviation to full name
         adminName1(validator: {name, zipcode ->
-            name == zipcode.state.fullName
+            name == zipcode.state.name
             }, nullable: false)
         adminCode2(size: 3..3,
             validator: StringUtils.stringIsIntegers,

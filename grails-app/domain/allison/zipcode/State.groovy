@@ -1,28 +1,15 @@
 package allison.zipcode
 
 class State {
-    int totalResultsCount
-    String abbreviation
-    String fullName
+    String name
 
     @Override
     String toString() {
-        abbreviation + " - " + fullName
+        name
     }
 
     static constraints = {
-        totalResultsCount(size: 0..10000)
-        // The abbreviation and full name must match
-        // the stateNames of the country
-        abbreviation(unique: true,
-                validator: {abbr, state ->
-                            abbr in state.country.stateNames
-                            })
-        // Because country.stateNames is a map, abbreviation must
-        // by unique but fullName need not be
-        fullName(validator: {name, state ->
-            name == state.country.stateNames[state.abbreviation]
-        })
+        name(unique: true)
     }
 
 

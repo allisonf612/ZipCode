@@ -2,8 +2,9 @@ package allison.zipcode
 
 class Country {
 
-    Map stateNames
+//    Map stateNames
     String name
+    String countryCode
 
     @Override
     String toString() {
@@ -11,13 +12,14 @@ class Country {
     }
 
     static constraints = {
-        name(unique: true)
-        stateNames(nullable: false)
+        name(unique: true, nullable: true)
+        countryCode(unique: true, size: 2..2)
+//        stateNames(nullable: false)
     }
 
 
     static mapping = {
-        states sort: 'fullName', order: 'asc' // Sort the states alphabetically by name
+        states sort: 'name', order: 'asc' // Sort the states alphabetically by name
     }
 
     static hasMany = [states: State]

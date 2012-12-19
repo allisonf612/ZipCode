@@ -9,11 +9,10 @@ class ZipcodeIntegrationTests {
 
     @Before
     void setUp() {
-        minnesota = new State(totalResultsCount: 1,
-                abbreviation: "MN",
-                fullName: "Minnesota")
+        minnesota = new State(name: "Minnesota")
 
-        unitedStates = Country.findByName("United States of America")
+        unitedStates = new Country(name: "United States of America",
+                                    countryCode: "US")// .findByName("United States of America")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
     }
@@ -73,10 +72,10 @@ class ZipcodeIntegrationTests {
     void testConstraints() {
         def postalCode = "550824"
         def name = "Stillwater"
-        def countryCode = "US"
+        def countryCode = "UA"
         def lat = 100.0
         def lng = -200
-        def adminCode1 = "M"
+        def adminCode1 = "MN"
         def adminName1 = "Minnesota"
         def adminCode2 = "aa1"
         def adminName2 = "Washington"
@@ -102,13 +101,13 @@ class ZipcodeIntegrationTests {
         assertEquals postalCode,
                 errors.getFieldError("postalCode").rejectedValue
         assertNull errors.getFieldError("name")
-        assertNull errors.getFieldError("countryCode")
+        assertEquals "validator.invalid",
+                errors.getFieldError("countryCode").code
         assertEquals "max.exceeded",
                 errors.getFieldError("lat").code
         assertEquals "min.notmet",
                 errors.getFieldError("lng").code
-        assertEquals "validator.invalid",
-                errors.getFieldError("adminCode1").code
+        assertNull errors.getFieldError("adminCode1")
         assertNull errors.getFieldError("adminName1")
         assertEquals "validator.invalid",
                 errors.getFieldError("adminCode2").code
