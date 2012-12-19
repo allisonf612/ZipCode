@@ -12,16 +12,8 @@ class DownloadService {
     String download(String filename, String address)
     {
         File file = new File(filename)
-        print "File: " + file
-//        if (!file.getParentFile().mkdirs()) {
-//            println "Dirs not made"
-//        }
-
-        if (!file.createNewFile()) {
-            println "File not created"
-        } else {
-            println "File created"
-        }
+        file.getParentFile().mkdirs()
+        file.createNewFile()
 
         def fileOut = new FileOutputStream(file)
         def out = new BufferedOutputStream(fileOut)
