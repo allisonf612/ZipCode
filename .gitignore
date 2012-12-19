@@ -16,4 +16,5 @@ stacktrace.log
 /out/
 /web-app/plugins
 /web-app/WEB-INF
-
+/web-app/data
+/web-app/backup_data
