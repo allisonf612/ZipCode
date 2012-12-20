@@ -64,20 +64,5 @@ class DownloadServiceUnitTests {
         assertEquals testString, downloadedString
     }
 
-
-    void testUnsuccessfulDownload() {
-        def address = "http://api.geonames.org/postalCodeSearch?placename=US&username=allisoneer"
-
-        try {
-            assertEquals "Unable to download from url: ${address}",
-                shouldFail(UnableToDownloadException) {
-                    DownloadService.download("test/temp/download_test",
-                        invalidAddress)
-                }
-        } catch (Exception ex) {
-            fail()
-        }
-    }
-
     // TODO: test null input, test unabletodownloadexception
 }
