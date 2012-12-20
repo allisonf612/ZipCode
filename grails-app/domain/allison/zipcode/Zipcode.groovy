@@ -51,5 +51,9 @@ class Zipcode {
         adminName3(nullable: true)
     }
 
+    static mapping = {
+        sort postalCode: "asc"
+    }
+
     static belongsTo = [state: State]
 }

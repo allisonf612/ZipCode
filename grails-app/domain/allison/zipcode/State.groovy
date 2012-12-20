@@ -16,6 +16,10 @@ class State {
         name(unique: true, blank: false)
     }
 
+    static mapping = {
+        sort name: "asc"
+    }
+
     static hasMany = [zipcodes : Zipcode]
     static belongsTo = [country: Country]
 }
