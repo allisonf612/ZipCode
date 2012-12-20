@@ -53,7 +53,7 @@ class DownloadService {
     }
 
     String getAddress(Country country) {
-        resetGetAddress()
+        "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
     }
 
     def setGetAddressForTest() {
