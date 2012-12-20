@@ -69,13 +69,15 @@ class ZipcodeService {
         def state = ZipcodeService.getState(country, zipcode.adminName1)
         // State has been initialized
 
-        // Only add the zipcode if it is valid
-        state.addToZipcodes(zipcode)
-        if (zipcode.validate()) {
-            state.save(flush: true)
-        } else {
-            state.removeFromZipcodes(zipcode)
-            zipcode.discard()
+        if (state) {
+            // Only add the zipcode if it is valid
+            state.addToZipcodes(zipcode)
+            if (zipcode.validate()) {
+                state.save(flush: true)
+            } else {
+                state.removeFromZipcodes(zipcode)
+                zipcode.discard()
+            }
         }
     }
 
@@ -87,12 +89,24 @@ class ZipcodeService {
      */
     static State getState(Country country, String stateName) {
         // Don't just match the stateName, verify the correct country
-        def state = State.findByName(stateName)
+        def state
+
+        if (!stateName) {
+            return
+        }
+
+        state = State.findByName(stateName)
 
         if (!state || !(state in country.states)) { // First zipcode for this state so create it
             state = new State(name: stateName)
             country.addToStates(state)
-            country.save(flush: true)
+            if (!state.validate()) {
+                country.removeFromStates(state)
+                state.discard()
+                state = null
+            } else {
+                country.save(flush: true)
+            }
         }
 
         return state

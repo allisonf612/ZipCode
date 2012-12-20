@@ -13,9 +13,8 @@ class State {
     }
 
     static constraints = {
-        name(unique: true)
+        name(unique: true, blank: false)
     }
-
 
     static hasMany = [zipcodes : Zipcode]
     static belongsTo = [country: Country]
