@@ -67,6 +67,12 @@ class ZipcodeServiceIntegrationTests {
                 adminCode2: "033",
                 adminName2: "King",) in
                 unitedStates.states.toList()[1].zipcodes
+
+
+        // Reset the getAddress method:
+        DownloadService.metaClass."getAddress" = {Country country ->
+            "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+        }
     }
 
     @Test
