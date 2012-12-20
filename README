@@ -1,0 +1,9 @@
+This software downloads the zipcodes for a given country code.  Current restrictions on Zipcode domain class limit its functionality to US but other country codes will not break it.  The xml downloaded from http://api.geonames.org/postalCodeSearch?placename=US&username=allisoneer only contains 17 states and 100 zipcodes so the data set is limited to that.  I have branched the code to work on downloading zipcodes from each state individually.  
+
+Features:
+* Add a new country with the country code to download for
+* Load zipcodes into database for a given country
+* clear zipcodes and states for a given country
+* Delete countries
+
+State and zipcode creation is limited to those parsed from loaded xml
