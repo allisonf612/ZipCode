@@ -1,6 +1,7 @@
 package allison.zipcode
 
 class ZipcodeService {
+    def downloadService
 
     /**
      * Download the zipcodes, add them to the Domain, and update the tag cloud
@@ -15,11 +16,11 @@ class ZipcodeService {
         }
 
         def file = DownloadService.getCountryFileName(country)
+        def address = downloadService.getAddress(country)
 
         try {
             // Download zip codes
-            DownloadService.download(file,
-                    "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer")
+            DownloadService.download(file, address)
 
             // Only clear the zip codes on a successful download
             clearZipcodes(id)
@@ -107,14 +108,17 @@ class ZipcodeService {
         if (!country) { // If the country doesn't exist, there is nothing to do
             return
         }
+
         // Delete Zipcodes and States from Countries and xml storage
-        def tmp = []
-        tmp.addAll(country.states)
-        tmp.each {
-            // Explicitly remove States, Zipcodes are deleted by cascade
-            country.removeFromStates(it)
-            it.delete()
-        }
+        if (country.states) {
+            def tmp = []
+            tmp.addAll(country.states)
+            tmp.each {
+                // Explicitly remove States, Zipcodes are deleted by cascade
+                country.removeFromStates(it)
+                it.delete()
+            }
+        } // Nothing to do if there are no states
     }
 
     /**

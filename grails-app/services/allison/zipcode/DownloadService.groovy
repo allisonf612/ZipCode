@@ -52,4 +52,8 @@ class DownloadService {
         return "${prefix}temp"
     }
 
+    String getAddress(Country country) {
+        "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+    }
+
 }
