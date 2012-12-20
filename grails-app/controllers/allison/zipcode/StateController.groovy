@@ -1,6 +1,5 @@
 package allison.zipcode
 
-import org.springframework.dao.DataIntegrityViolationException
 
 class StateController {
 
@@ -14,10 +13,14 @@ class StateController {
         [stateInstanceList: State.list(params), stateInstanceTotal: State.count()]
     }
 
-
+    /**
+     * Show the states.
+     * @param id
+     * @return
+     */
     def show(Long id) {
         def stateInstance
-        if (params.stateName) {
+        if (params.stateName) { // This was a link from the tag cloud so translate it
             stateInstance = ZipcodeService.getState(Country.get(id), params.stateName)
         } else {
             stateInstance = State.get(id)

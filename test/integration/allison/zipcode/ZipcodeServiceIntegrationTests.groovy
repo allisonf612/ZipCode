@@ -4,7 +4,6 @@ import static org.junit.Assert.*
 import org.junit.*
 
 class ZipcodeServiceIntegrationTests {
-    def zipcodeService
     def unitedStates
 
     @Before
@@ -68,7 +67,6 @@ class ZipcodeServiceIntegrationTests {
 
     @Test
     void testAddZipcodeToCountry() {
-        def stateName = "Minnesota"
 
         def validZipcode = new Zipcode(postalCode: "55082",
                 name: "Stillwater",

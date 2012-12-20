@@ -7,7 +7,10 @@ class UnableToDownloadException extends RuntimeException {
 class DownloadService {
 
     /**
-     * @param address
+     * Download from the address to the file called filename
+     * @param filename The file to save the downloaded data
+     * @param address The address to get the data from
+     * @return void
      */
     static download(String filename, String address)
     {
@@ -36,7 +39,7 @@ class DownloadService {
     }
 
     /**
-     * Return the name of the file for download. Returns temp
+     * Return the name of the file to save the download. Returns temp
      * if country is null.
      * @param country
      * @return

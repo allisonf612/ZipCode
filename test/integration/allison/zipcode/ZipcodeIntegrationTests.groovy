@@ -12,7 +12,7 @@ class ZipcodeIntegrationTests {
         minnesota = new State(name: "Minnesota")
 
         unitedStates = new Country(name: "United States of America",
-                                    countryCode: "US")// .findByName("United States of America")
+                                    countryCode: "US")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
     }

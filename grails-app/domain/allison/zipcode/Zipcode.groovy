@@ -1,14 +1,7 @@
 package allison.zipcode
 
 import groovy.transform.EqualsAndHashCode
-//enum State {
-//    AK, AL, AR, AS, AZ, CA, CO, CT, DC, DE, FL,
-//    FM, GA, GU, HI, IA, ID, IL, IN, KS, KY, LA,
-//    MA, ME, MD, MH, MI, MN, MO, MP, MS, MT, NC,
-//    ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA,
-//    PW, RI, SC, SD, TN, TX, UT, VI, VT, VA, WA,
-//    WI, WV, WY
-//}
+
 
 @EqualsAndHashCode
 class Zipcode {
@@ -44,15 +37,9 @@ class Zipcode {
             nullable: true)
         lng(min: -180d, max: 180d,
             nullable: true)
-        // adminCode1 is the abbraviation for the state name
-        // and it must match the state to which this zipcode belongs
-        adminCode1(
-//                validator: {code, zipcode ->
-//            code == zipcode.state.abbreviation
-//            },
-                nullable: false)
+        adminCode1(nullable: false)
         // adminName1 is the full name of the state and it must match
-        // the country's mapping from abbreviation to full name
+        // the name of the state this zipcode belongs to
         adminName1(validator: {name, zipcode ->
             name == zipcode.state.name
             }, nullable: false)

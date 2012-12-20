@@ -8,7 +8,6 @@ class StateIntegrationTests {
 
     @Before
     void setUp() {
-//        unitedStates = Country.findByName("United States of America")
         unitedStates = new Country(name: "United States of America",
                 countryCode: "US").save()
     }
@@ -22,7 +21,6 @@ class StateIntegrationTests {
     void testValidState() {
         def minnesota = new State(name: "Minnesota")
 
-//        unitedStates = Country.findByName("United States of America")
         unitedStates.addToStates(minnesota)
         assertNotNull unitedStates.save(flush: true)
 
@@ -36,7 +34,6 @@ class StateIntegrationTests {
     void testHasMany() {
         def minnesota = new State(name: "Minnesota")
 
-//        unitedStates = Country.findByName("United States of America")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
 
@@ -66,8 +63,8 @@ class StateIntegrationTests {
 
         assertEquals 2, minnesota.zipcodes.size()
 
-        // Verify that
-        assertNotNull Zipcode.get(zipcode1.id)
+        // Verify that zipcode exists
+        assertTrue Zipcode.exists(zipcode1.id)
     }
 
 
@@ -75,7 +72,6 @@ class StateIntegrationTests {
     void testCascadeDelete() {
         def minnesota = new State(name: "Minnesota")
 
-//        unitedStates = Country.findByName("United States of America")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)
 

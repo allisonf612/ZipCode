@@ -6,18 +6,6 @@ class CountryController {
     static scaffold = true
     def zipcodeService
 
-    def tagCloud(Long id) {
-        def cloudData = zipcodeService.generateTagCloud(id)
-
-        [cloudData: cloudData]
-
-    }
-
-//    def create() {
-//        [countryInstance: new Country(params)]
-//    }
-
-
 
     def show(Long id) {
         def countryInstance = Country.get(id)
@@ -27,7 +15,7 @@ class CountryController {
             return
         }
 
-        def cloudData = zipcodeService.generateTagCloud(id)
+        def cloudData = ZipcodeService.generateTagCloud(id)
 
         [countryInstance: countryInstance, cloudData: cloudData]
     }

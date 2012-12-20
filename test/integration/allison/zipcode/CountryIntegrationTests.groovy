@@ -17,16 +17,6 @@ class CountryIntegrationTests {
         // Tear down logic here
     }
 
-//    @Test
-//    void testBootstrap() {
-//        def countries = Country.list()
-//        assertEquals 1, countries.size()
-//
-//        def unitedStates = countries[0]
-//        assertEquals "United States of America", unitedStates.name
-//        assertEquals "Alaska", unitedStates.stateNames["AK"]
-//        assertEquals "Missouri", unitedStates.stateNames["MO"]
-//    }
 
     /**
      * Test the constraints on the properties of Country
@@ -52,7 +42,6 @@ class CountryIntegrationTests {
 
     @Test
     void testHasMany() {
-//        def unitedStates = Country.findByName("United States of America")
         def minnesota = new State(name: "Minnesota")
         def wisconsin = new State(name: "Wisconsin")
 
@@ -65,7 +54,6 @@ class CountryIntegrationTests {
 
     @Test
     void testCascade() {
-//        def unitedStates = Country.findByName("United States of America")
         def minnesota = new State(name: "Minnesota")
         unitedStates.addToStates(minnesota)
         unitedStates.save(flush: true)

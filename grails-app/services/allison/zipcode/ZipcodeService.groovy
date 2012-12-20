@@ -4,7 +4,7 @@ class ZipcodeService {
 
     /**
      * Download the zipcodes, add them to the Domain, and update the tag cloud
-     * @param id
+     * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
     def load(Long id) throws UnableToDownloadException {
@@ -33,8 +33,6 @@ class ZipcodeService {
                 ZipcodeService.addZipcodeToCountry(country, zipcode)
             }
 
-            // Generate Tag Cloud
-            generateTagCloud(id)
         } catch (FileNotFoundException ex) {
             throw new UnableToDownloadException(message: "Unable to create ${file} from download")
         }
@@ -119,7 +117,13 @@ class ZipcodeService {
         }
     }
 
-    def generateTagCloud(Long id) {
+    /**
+     * Generate the map of zipcodes per state for a tag cloud
+     * @param id The country for which to create the cloud
+     * @return  The map containing zip code counts keyed by state
+     * name
+     */
+    static generateTagCloud(Long id) {
         def country = Country.get(id)
         if (!country) { // Zip codes are an empty map if the country is missing
             return [:]
