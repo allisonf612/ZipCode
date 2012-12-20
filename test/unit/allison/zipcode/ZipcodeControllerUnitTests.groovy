@@ -5,14 +5,21 @@ package allison.zipcode
 import org.junit.*
 import grails.test.mixin.*
 
-//@TestFor(ZipcodeController)
+@TestFor(ZipcodeController)
 @Mock(Zipcode)
 class ZipcodeControllerUnitTests {
 
     def populateValidParams(params) {
         assert params != null
-        // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["postalCode"] = "55082"
+        params["name"] = "Stillwater"
+        params["countryCode"] = "US"
+        params["lat"] = 45.06142
+        params["lng"] = -92.84736
+        params["adminCode1"] = "MN"
+        params["adminName1"] = "Minnesota"
+        params["adminCode2"] = "163"
+        params["adminName2"] = "Washington"
     }
 
     void testIndex() {
