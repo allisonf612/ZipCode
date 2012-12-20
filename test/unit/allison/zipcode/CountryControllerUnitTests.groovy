@@ -5,19 +5,54 @@ package allison.zipcode
 import org.junit.*
 import grails.test.mixin.*
 
-//@TestFor(CountryController)
+@TestFor(CountryController)
 @Mock(Country)
 class CountryControllerUnitTests {
 
     def populateValidParams(params) {
         assert params != null
-        // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["name"] = "United States of America"
+        params["countryCode"] = "US"
     }
 
     void testIndex() {
         controller.index()
         assert "/country/list" == response.redirectedUrl
+    }
+
+    /**
+     * Doesn't pass
+     */
+    void testLoad() {
+        populateValidParams(params)
+        def country = new Country(params)
+
+        assert country.save() != null
+
+        params.id = country.id
+
+        controller.load()
+
+        assert model.params == null
+        assert view == '/country/show'
+    }
+
+    /**
+     * Doesn't pass
+     */
+    void testClear() {
+        populateValidParams(params)
+        def country = new Country(params)
+
+        assert country.save() != null
+
+        params.id = country.id
+
+        controller.load()
+        controller.clear()
+
+        assert model.params == null
+        assert view == '/country/show'
     }
 
     void testList() {
@@ -101,7 +136,8 @@ class CountryControllerUnitTests {
 
         // test invalid parameters in update
         params.id = country.id
-        //TODO: add invalid values to params object
+        params["countryCode"] = "toolong"
+        params["name"] = "valid"
 
         controller.update()
 
