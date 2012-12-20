@@ -53,7 +53,23 @@ class DownloadService {
     }
 
     String getAddress(Country country) {
-        "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+        resetGetAddress()
+    }
+
+    def setGetAddressForTest() {
+        DownloadService.metaClass."getAddress" = {Country country ->
+            File downloadFile = new File("web-app/data/miniUS")
+            downloadFile.getParentFile().mkdirs()
+            downloadFile.createNewFile()
+            def downloadFilename = downloadFile.absolutePath
+            "file://${downloadFilename}"
+        }
+    }
+
+    def resetGetAddress() {
+        DownloadService.metaClass."getAddress" = {Country country ->
+            "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+        }
     }
 
 }

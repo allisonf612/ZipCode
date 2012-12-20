@@ -6,6 +6,7 @@ import org.junit.*
 class ZipcodeServiceIntegrationTests {
     def unitedStates
     def zipcodeService
+    def downloadService
 
     @Before
     void setUp() {
@@ -27,13 +28,7 @@ class ZipcodeServiceIntegrationTests {
     @Test
     void testLoad() {
 
-        DownloadService.metaClass."getAddress" = {Country country ->
-            File downloadFile = new File("web-app/data/miniUS")
-            downloadFile.getParentFile().mkdirs()
-            downloadFile.createNewFile()
-            def downloadFilename = downloadFile.absolutePath
-            "file://${downloadFilename}"
-        }
+        downloadService.setGetAddressForTest()
 
         ZipcodeService.clearZipcodes(unitedStates.id)
         assertNotNull unitedStates
@@ -70,9 +65,7 @@ class ZipcodeServiceIntegrationTests {
 
 
         // Reset the getAddress method:
-        DownloadService.metaClass."getAddress" = {Country country ->
-            "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
-        }
+        downloadService.resetGetAddress()
     }
 
     @Test
