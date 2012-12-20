@@ -14,8 +14,8 @@ class Country {
     }
 
     static constraints = {
-        name(unique: true, nullable: true)
-        countryCode(unique: true, size: 2..2)
+        name(unique: true, nullable: true, blank: true)
+        countryCode(unique: true, size: 2..2, blank: false)
     }
 
 
