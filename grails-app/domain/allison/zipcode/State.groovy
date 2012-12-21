@@ -7,6 +7,7 @@ import groovy.transform.EqualsAndHashCode
 class State {
     String name
     String abbreviation
+    String countryCode
 
     @Override
     String toString() {
@@ -15,7 +16,11 @@ class State {
 
     static constraints = {
         name(unique: true, blank: false)
-        abbreviation(unique: true, blank: false, size: 2..2)
+        abbreviation(unique: true, size: 2..2)
+        countryCode(size: 2..2,
+             validator: {countryCode, state ->
+                  countryCode == state.country.countryCode
+             })
     }
 
     static mapping = {
