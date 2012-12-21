@@ -9,4 +9,7 @@ Features:
 State and zipcode creation is limited to those parsed from loaded xml
 
 
-The branch "downloadByStateAbbr" will load all the states for the US from BootStrap.  Then, for each state, the file will be downloaded and only zipcodes for the country code will be saved.
+The branch "downloadByStateAbbr" loads all the states for the US Country from BootStrap.  Then, for each state, the file will be downloaded and only zipcodes for the country code will be saved.
+
+TESTS:
+Tests are for master branch, not modified for downloadByStateAbbr branch
