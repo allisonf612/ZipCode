@@ -10,7 +10,8 @@ class BootStrap {
     }
 
     void createUnitedStates() {
-        def unitedStates = Country.findByCountryCode("US")
+        def US = "US"
+        def unitedStates = Country.findByCountryCode(US)
 
         if (! unitedStates) {
             unitedStates = new Country(name: "United States of America", countryCode: US).save(flush: true)
@@ -38,13 +39,13 @@ class BootStrap {
                 "VT": "Vermont", "VA": "Virginia",
                 "WA": "Washington", "WI": "Wisconsin", "WV": "West Virginia", "WY": "Wyoming"]
 
-        def US = "US"
+
         if (unitedStates) { // Add all the states to US
             def state
             stateData.each {abbr, name ->
                 state = State.findByAbbreviationAndCountryCode(abbr, US)
                 if (!state) {
-                    new State(name: name, abbreviation: abbr, countryCode: US)
+                    state = new State(name: name, abbreviation: abbr, countryCode: US)
                     unitedStates.addToStates(state)
                 } else if (state.name != name) { // State name will vary if xml names vary for
                                                  // static abbreviation and countryCode
