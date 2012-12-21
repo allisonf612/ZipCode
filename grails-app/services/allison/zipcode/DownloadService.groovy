@@ -38,22 +38,30 @@ class DownloadService {
 
     }
 
+    static String getCountryDir(Country country) {
+        def prefix = "web-app/data/"
+        if (country?.countryCode) {
+            return "${prefix}${country.countryCode}/"
+        }
+        return prefix
+    }
+
     /**
      * Return the name of the file to save the download. Returns temp
      * if country is null.
      * @param country
      * @return
      */
-    static String getCountryFileName(Country country) {
-        def prefix = "web-app/data/"
-        if (country?.countryCode) {
-            return "${prefix}${country.countryCode}"
+    static String getStateFileName(State state) {
+        def prefix = getCountryDir(state.country)
+        if (state?.abbreviation) {
+            return "${prefix}${state.abbreviation}"
         }
         return "${prefix}temp"
     }
 
-    String getAddress(Country country) {
-        "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+    static getAddress(State state) {
+        "http://api.geonames.org/postalCodeSearch?placename=${state.abbreviation}&username=allisoneer"
     }
 
     def setGetAddressForTest() {
