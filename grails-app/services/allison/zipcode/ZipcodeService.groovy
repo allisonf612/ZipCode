@@ -16,29 +16,33 @@ class ZipcodeService {
         }
 
         // Delete old xml files
-//        def dir = DownloadService.getCountryDir(country)
-//        FileUtils.deleteDirectory(new File(dir))
+        def dir = DownloadService.getCountryDir(country)
+        FileUtils.deleteDirectory(new File(dir))
+
+        def file
+        def address
+        def slurper = new XmlSlurper()
 
         country.states.each {
 
-            def file = DownloadService.getStateFileName(it)
-            def address = DownloadService.getAddress(it)
-            println "File: ${file}"
+            file = DownloadService.getStateFileName(it)
+            address = DownloadService.getAddress(it)
+            println "Downloading file: ${file}"
             try {
 
                 // Download zip codes
-//                DownloadService.download(file, address)
-//
-//                // Only clear the zip codes on a successful download
-//                clearZipcodes(country, it)
+                DownloadService.download(file, address)
+
+                // Only clear the zip codes on a successful download
+                clearZipcodes(country, it)
 
                 // Slurp and save in Domain
-                def xml = new XmlSlurper().parse(file)
+                def xml = slurper.parse(file)
                 def allCodes = xml.code
                 def zipcode
                 for (code in allCodes) {
                     zipcode = ZipcodeService.slurpZipcode(code)
-                    ZipcodeService.addZipcodeToCountry(country, zipcode)
+                    ZipcodeService.addZipcodeToState(it, zipcode)
                 }
 
             } catch (FileNotFoundException ex) {
@@ -73,15 +77,13 @@ class ZipcodeService {
     }
 
 
-    static addZipcodeToCountry(Country country, Zipcode zipcode) {
-        def state = State.findByAbbreviationAndCountryCode(zipcode.adminCode1, zipcode.countryCode)
-        // State has been initialized
+    static addZipcodeToState(State state, Zipcode zipcode) {
 
         if (state) {
             // Only add the zipcode if it is valid
             state.addToZipcodes(zipcode)
             if (zipcode.validate()) {
-                state.save()//flush: true)
+                state.save()
             } else {
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
@@ -115,14 +117,14 @@ class ZipcodeService {
         }
 
         // For each zipcode, delete it
-                if(state.zipcodes) {
-                    def tmp = []
-                    tmp.addAll(state.zipcodes)
-                    tmp.each { zipcode ->
-                        state.removeFromZipcodes(zipcode)
-                        zipcode.delete()
-                    }
-                } // Nothing to do if there are no zipcodes
+        if(state.zipcodes) {
+            def tmp = []
+            tmp.addAll(state.zipcodes)
+            tmp.each { zipcode ->
+                state.removeFromZipcodes(zipcode)
+                zipcode.delete()
+            }
+        } // Nothing to do if there are no zipcodes
     }
 
     /**

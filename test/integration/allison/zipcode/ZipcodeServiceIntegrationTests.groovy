@@ -136,12 +136,12 @@ class ZipcodeServiceIntegrationTests {
         assertNull Zipcode.findByPostalCode(invalidZipcode.postalCode)
 
         // successful add of valid zipcode
-        ZipcodeService.addZipcodeToCountry(unitedStates, validZipcode)
+        ZipcodeService.addZipcodeToState(unitedStates, validZipcode)
         def state = State.findByName("Minnesota")
         assertTrue validZipcode in state.zipcodes
 
         // Unsuccessful add of invalid zipcode
-        ZipcodeService.addZipcodeToCountry(unitedStates, invalidZipcode)
+        ZipcodeService.addZipcodeToState(unitedStates, invalidZipcode)
         assertFalse invalidZipcode in state.zipcodes
     }
 
