@@ -10,20 +10,20 @@
 	<g:textField name="name" required="" value="${stateInstance?.name}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: stateInstance, field: 'abbreviation', 'error')} ">
+<div class="fieldcontain ${hasErrors(bean: stateInstance, field: 'abbreviation', 'error')} required">
 	<label for="abbreviation">
 		<g:message code="state.abbreviation.label" default="Abbreviation" />
-		
+		<span class="required-indicator">*</span>
 	</label>
-	<g:textField name="abbreviation" maxlength="2" value="${stateInstance?.abbreviation}"/>
+	<g:textField name="abbreviation" maxlength="2" required="" value="${stateInstance?.abbreviation}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: stateInstance, field: 'countryCode', 'error')} ">
+<div class="fieldcontain ${hasErrors(bean: stateInstance, field: 'countryCode', 'error')} required">
 	<label for="countryCode">
 		<g:message code="state.countryCode.label" default="Country Code" />
-		
+		<span class="required-indicator">*</span>
 	</label>
-	<g:textField name="countryCode" maxlength="2" value="${stateInstance?.countryCode}"/>
+	<g:textField name="countryCode" maxlength="2" required="" value="${stateInstance?.countryCode}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: stateInstance, field: 'country', 'error')} required">
@@ -34,20 +34,4 @@
 	<g:select id="country" name="country.id" from="${allison.zipcode.Country.list()}" optionKey="id" required="" value="${stateInstance?.country?.id}" class="many-to-one"/>
 </div>
 
-%{--<div class="fieldcontain ${hasErrors(bean: stateInstance, field: 'zipcodes', 'error')} ">--}%
-	%{--<label for="zipcodes">--}%
-		%{--<g:message code="state.zipcodes.label" default="Zipcodes" />--}%
-		%{----}%
-	%{--</label>--}%
-	%{----}%
-%{--<ul class="one-to-many">--}%
-%{--<g:each in="${stateInstance?.zipcodes?}" var="z">--}%
-    %{--<li><g:link controller="zipcode" action="show" id="${z.id}">${z?.encodeAsHTML()}</g:link></li>--}%
-%{--</g:each>--}%
-%{--<li class="add">--}%
-%{--<g:link controller="zipcode" action="create" params="['state.id': stateInstance?.id]">${message(code: 'default.add.label', args: [message(code: 'zipcode.label', default: 'Zipcode')])}</g:link>--}%
-%{--</li>--}%
-%{--</ul>--}%
-
-%{--</div>--}%
 
