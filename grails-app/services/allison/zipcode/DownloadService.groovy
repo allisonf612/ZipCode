@@ -53,7 +53,7 @@ class DownloadService {
      * @return
      */
     static String getStateFileName(State state) {
-        def prefix = getCountryDir(state.country)
+        def prefix = getCountryDir(state?.country)
         if (state?.abbreviation) {
             return "${prefix}${state.abbreviation}"
         }

@@ -18,20 +18,6 @@ class DownloadServiceUnitTests {
         FileUtils.deleteDirectory(new File("test/temp"))
     }
 
-    /**
-     * Test DownloadService.getStateFileName
-     */
-    void testGetCountryFileName() {
-        def unitedStates = new Country(name: "United States of America",
-                countryCode: "US")
-        assertNotNull unitedStates
-
-        assertEquals "web-app/data/US",
-                DownloadService.getStateFileName(unitedStates)
-
-        assertEquals "web-app/data/temp",
-                DownloadService.getStateFileName(null)
-    }
 
     void testSuccessfulDownload() {
         // Write a temporary test file
