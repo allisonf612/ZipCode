@@ -26,7 +26,7 @@ class ZipcodeService {
         country.states.each {
 
             file = DownloadService.getStateFileName(it)
-            address = DownloadService.getAddress(it)
+            address = downloadService.getAddress(it)
             println "Downloading file: ${file}"
             try {
 

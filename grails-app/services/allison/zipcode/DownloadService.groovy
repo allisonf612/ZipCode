@@ -60,13 +60,13 @@ class DownloadService {
         return "${prefix}temp"
     }
 
-    static getAddress(State state) {
+    String getAddress(State state) {
         "http://api.geonames.org/postalCodeSearch?placename=${state.abbreviation}&username=allisoneer"
     }
 
     def setGetAddressForTest() {
         DownloadService.metaClass."getAddress" = {State state ->
-            File downloadFile = new File("web-app/data/source/${state.abbreviation}")
+            File downloadFile = new File("web-app/source/${state.abbreviation}")
             downloadFile.getParentFile().mkdirs()
             downloadFile.createNewFile()
             def downloadFilename = downloadFile.absolutePath
