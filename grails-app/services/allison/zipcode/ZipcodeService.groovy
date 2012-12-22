@@ -21,8 +21,12 @@ class ZipcodeService {
 
         def file
         def address
+        def xml
+        def allCodes
+        def zipcode
         def slurper = new XmlSlurper()
 
+        def start = System.currentTimeMillis()
         country.states.each {
 
             file = DownloadService.getStateFileName(it)
@@ -37,9 +41,9 @@ class ZipcodeService {
                 clearZipcodes(country, it)
 
                 // Slurp and save in Domain
-                def xml = slurper.parse(file)
-                def allCodes = xml.code
-                def zipcode
+                xml = slurper.parse(file)
+                allCodes = xml.code
+                zipcode
                 for (code in allCodes) {
                     zipcode = ZipcodeService.slurpZipcode(code)
                     ZipcodeService.addZipcodeToState(it, zipcode)
@@ -50,6 +54,8 @@ class ZipcodeService {
             }
             println "Num zipcodes: " + it?.zipcodes?.size()
         }
+
+        println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
 
     }
 
