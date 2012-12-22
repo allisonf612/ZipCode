@@ -13,6 +13,7 @@
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
+				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
 			</ul>
 		</div>
 		<div id="show-state" class="content scaffold-show" role="main">
@@ -27,6 +28,24 @@
 					<span id="name-label" class="property-label"><g:message code="state.name.label" default="Name" /></span>
 					
 						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${stateInstance}" field="name"/></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${stateInstance?.abbreviation}">
+				<li class="fieldcontain">
+					<span id="abbreviation-label" class="property-label"><g:message code="state.abbreviation.label" default="Abbreviation" /></span>
+					
+						<span class="property-value" aria-labelledby="abbreviation-label"><g:fieldValue bean="${stateInstance}" field="abbreviation"/></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${stateInstance?.countryCode}">
+				<li class="fieldcontain">
+					<span id="countryCode-label" class="property-label"><g:message code="state.countryCode.label" default="Country Code" /></span>
+					
+						<span class="property-value" aria-labelledby="countryCode-label"><g:fieldValue bean="${stateInstance}" field="countryCode"/></span>
 					
 				</li>
 				</g:if>
@@ -52,6 +71,13 @@
 				</g:if>
 			
 			</ol>
+			<g:form>
+				<fieldset class="buttons">
+					<g:hiddenField name="id" value="${stateInstance?.id}" />
+					<g:link class="edit" action="edit" id="${stateInstance?.id}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
+					<g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
+				</fieldset>
+			</g:form>
 		</div>
 	</body>
 </html>
