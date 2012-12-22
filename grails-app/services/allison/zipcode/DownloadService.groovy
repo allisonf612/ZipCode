@@ -66,7 +66,7 @@ class DownloadService {
 
     def setGetAddressForTest() {
         DownloadService.metaClass."getAddress" = {State state ->
-            File downloadFile = new File("web-app/data/miniUS/${state.abbreviation}")
+            File downloadFile = new File("web-app/data/source/${state.abbreviation}")
             downloadFile.getParentFile().mkdirs()
             downloadFile.createNewFile()
             def downloadFilename = downloadFile.absolutePath
