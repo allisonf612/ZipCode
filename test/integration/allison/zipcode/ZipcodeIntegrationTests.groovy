@@ -5,16 +5,10 @@ import org.junit.*
 
 class ZipcodeIntegrationTests {
     def minnesota
-    def unitedStates
 
     @Before
     void setUp() {
-        minnesota = new State(name: "Minnesota")
-
-        unitedStates = new Country(name: "United States of America",
-                                    countryCode: "US")
-        unitedStates.addToStates(minnesota)
-        unitedStates.save(flush: true)
+        minnesota = State.findByAbbreviation("MN")
     }
 
     @After
@@ -46,9 +40,7 @@ class ZipcodeIntegrationTests {
 
         minnesota.addToZipcodes(zipcode)
 
-
-        assertTrue zipcode.validate()
-        assertNotNull zipcode.save()   // zipcode is expected to be valid
+        assertNotNull minnesota.save(flush: true) // zipcode is expected to be valid
 
         // Compare the values from the database with those used initially
         def foundZipcode = Zipcode.get(zipcode.id)
