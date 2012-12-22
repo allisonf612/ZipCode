@@ -16,8 +16,8 @@ class State {
 
     static constraints = {
         name(unique: true, blank: false)
-        abbreviation(unique: true, size: 2..2)
-        countryCode(size: 2..2,
+        abbreviation(unique: true, size: 2..2, blank: false)
+        countryCode(size: 2..2, blank: false,
              validator: {countryCode, state ->
                   countryCode == state.country.countryCode
              })
