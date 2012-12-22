@@ -49,5 +49,4 @@ class DownloadServiceUnitTests {
         assertEquals testString, downloadedString
     }
 
-    // TODO: test null input, test unabletodownloadexception
 }
