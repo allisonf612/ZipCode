@@ -5,11 +5,12 @@ import org.junit.*
 
 class StateIntegrationTests {
     def unitedStates
+    def minnesota
 
     @Before
     void setUp() {
-        unitedStates = new Country(name: "United States of America",
-                countryCode: "US").save()
+        unitedStates = Country.findByCountryCode("US")
+        minnesota = State.findByAbbreviation("MN")
     }
 
     @After
@@ -19,23 +20,20 @@ class StateIntegrationTests {
 
     @Test
     void testValidState() {
-        def minnesota = new State(name: "Minnesota")
+        def fake = new State(name: "Fake", abbreviation: "FK", countryCode: "US")
 
-        unitedStates.addToStates(minnesota)
+        unitedStates.addToStates(fake)
         assertNotNull unitedStates.save(flush: true)
 
-        def foundMinnesota = State.get(minnesota.id)
-        assertNotNull foundMinnesota
+        def found = State.get(fake.id)
+        assertNotNull found
 
-        assertEquals "Minnesota", foundMinnesota.name
+        assertEquals "Fake", found.name
     }
 
     @Test
     void testHasMany() {
-        def minnesota = new State(name: "Minnesota")
-
-        unitedStates.addToStates(minnesota)
-        unitedStates.save(flush: true)
+        def minnesota = State.findByAbbreviation("MN")
 
         def zipcode1 = new Zipcode(postalCode: "55082",
                 name: "Stillwater",
@@ -70,10 +68,7 @@ class StateIntegrationTests {
 
     @Test
     void testCascadeDelete() {
-        def minnesota = new State(name: "Minnesota")
 
-        unitedStates.addToStates(minnesota)
-        unitedStates.save(flush: true)
 
         def zipcode1 = new Zipcode(postalCode: "55082",
                 name: "Stillwater",

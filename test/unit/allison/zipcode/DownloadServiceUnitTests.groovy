@@ -3,7 +3,6 @@ package allison.zipcode
 
 
 import grails.test.mixin.*
-import org.junit.*
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
@@ -19,20 +18,6 @@ class DownloadServiceUnitTests {
         FileUtils.deleteDirectory(new File("test/temp"))
     }
 
-    /**
-     * Test DownloadService.getCountryFileName
-     */
-    void testGetCountryFileName() {
-        def unitedStates = new Country(name: "United States of America",
-                countryCode: "US")
-        assertNotNull unitedStates
-
-        assertEquals "web-app/data/US",
-                DownloadService.getCountryFileName(unitedStates)
-
-        assertEquals "web-app/data/temp",
-                DownloadService.getCountryFileName(null)
-    }
 
     void testSuccessfulDownload() {
         // Write a temporary test file
@@ -64,5 +49,4 @@ class DownloadServiceUnitTests {
         assertEquals testString, downloadedString
     }
 
-    // TODO: test null input, test unabletodownloadexception
 }

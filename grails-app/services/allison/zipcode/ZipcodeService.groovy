@@ -15,29 +15,47 @@ class ZipcodeService {
             throw new UnableToDownloadException(message: "Unable to find country")
         }
 
-        def file = DownloadService.getCountryFileName(country)
-        def address = downloadService.getAddress(country)
+        // Delete old xml files
+        def dir = DownloadService.getCountryDir(country)
+        FileUtils.deleteDirectory(new File(dir))
 
-        try {
-            // Download zip codes
-            DownloadService.download(file, address)
+        def file
+        def address
+        def xml
+        def allCodes
+        def zipcode
+        def slurper = new XmlSlurper()
 
-            // Only clear the zip codes on a successful download
-            clearZipcodes(id)
+        def start = System.currentTimeMillis()
+        country.states.each {
 
-            // Slurp and save in Domain
-            def xml = new XmlSlurper().parse(file)
-            def allCodes = xml.code
-            def zipcode
-            for (code in allCodes) {
-                zipcode = ZipcodeService.slurpZipcode(code)
-                ZipcodeService.addZipcodeToCountry(country, zipcode)
+            file = DownloadService.getStateFileName(it)
+            address = downloadService.getAddress(it)
+            println "Downloading file: ${file}"
+            try {
+
+                // Download zip codes
+                DownloadService.download(file, address)
+
+                // Only clear the zip codes on a successful download
+                clearZipcodes(country, it)
+
+                // Slurp and save in Domain
+                xml = slurper.parse(file)
+                allCodes = xml.code
+                zipcode
+                for (code in allCodes) {
+                    zipcode = ZipcodeService.slurpZipcode(code)
+                    ZipcodeService.addZipcodeToState(it, zipcode)
+                }
+
+            } catch (FileNotFoundException ex) {
+                throw new UnableToDownloadException(message: "Unable to create ${file} from download")
             }
-
-        } catch (FileNotFoundException ex) {
-            throw new UnableToDownloadException(message: "Unable to create ${file} from download")
+            println "Num zipcodes: " + it?.zipcodes?.size()
         }
 
+        println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
 
     }
 
@@ -65,51 +83,18 @@ class ZipcodeService {
     }
 
 
-    static addZipcodeToCountry(Country country, Zipcode zipcode) {
-        def state = ZipcodeService.getState(country, zipcode.adminName1)
-        // State has been initialized
+    static addZipcodeToState(State state, Zipcode zipcode) {
 
         if (state) {
             // Only add the zipcode if it is valid
             state.addToZipcodes(zipcode)
             if (zipcode.validate()) {
-                state.save(flush: true)
+                state.save()
             } else {
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
             }
         }
-    }
-
-    /**
-     * Find the state in the country or create it if it is new
-     * @param country
-     * @param stateName
-     * @return
-     */
-    static State getState(Country country, String stateName) {
-        // Don't just match the stateName, verify the correct country
-        def state
-
-        if (!stateName) {
-            return
-        }
-
-        state = State.findByName(stateName)
-
-        if (!state || !(state in country.states)) { // First zipcode for this state so create it
-            state = new State(name: stateName)
-            country.addToStates(state)
-            if (!state.validate()) {
-                country.removeFromStates(state)
-                state.discard()
-                state = null
-            } else {
-                country.save(flush: true)
-            }
-        }
-
-        return state
     }
 
 
@@ -123,16 +108,29 @@ class ZipcodeService {
             return
         }
 
-        // Delete Zipcodes and States from Countries and xml storage
+        // For each state, for each zipcode, delete it
         if (country.states) {
-            def tmp = []
-            tmp.addAll(country.states)
-            tmp.each {
-                // Explicitly remove States, Zipcodes are deleted by cascade
-                country.removeFromStates(it)
-                it.delete()
+            country.states.each { state ->
+                clearZipcodes(country, state)
             }
         } // Nothing to do if there are no states
+    }
+
+    static clearZipcodes(Country country, State state) {
+
+        if (!country || !state) { // If the country doesn't exist, there is nothing to do
+            return
+        }
+
+        // For each zipcode, delete it
+        if(state.zipcodes) {
+            def tmp = []
+            tmp.addAll(state.zipcodes)
+            tmp.each { zipcode ->
+                state.removeFromZipcodes(zipcode)
+                zipcode.delete()
+            }
+        } // Nothing to do if there are no zipcodes
     }
 
     /**

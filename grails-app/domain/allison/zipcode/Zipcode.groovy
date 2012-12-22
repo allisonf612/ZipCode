@@ -37,7 +37,10 @@ class Zipcode {
             nullable: true)
         lng(min: -180d, max: 180d,
             nullable: true)
-        adminCode1(nullable: false)
+        // adminCode2 is the abbreviation of the state name
+        adminCode1(nullable: false, validator: {abbr, zipcode ->
+            abbr == zipcode.state.abbreviation
+            })
         // adminName1 is the full name of the state and it must match
         // the name of the state this zipcode belongs to
         adminName1(validator: {name, zipcode ->

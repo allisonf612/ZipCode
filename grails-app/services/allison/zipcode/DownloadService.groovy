@@ -38,27 +38,35 @@ class DownloadService {
 
     }
 
+    static String getCountryDir(Country country) {
+        def prefix = "web-app/data/"
+        if (country?.countryCode) {
+            return "${prefix}${country.countryCode}/"
+        }
+        return prefix
+    }
+
     /**
      * Return the name of the file to save the download. Returns temp
      * if country is null.
      * @param country
      * @return
      */
-    static String getCountryFileName(Country country) {
-        def prefix = "web-app/data/"
-        if (country?.countryCode) {
-            return "${prefix}${country.countryCode}"
+    static String getStateFileName(State state) {
+        def prefix = getCountryDir(state?.country)
+        if (state?.abbreviation) {
+            return "${prefix}${state.abbreviation}"
         }
         return "${prefix}temp"
     }
 
-    String getAddress(Country country) {
-        "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+    String getAddress(State state) {
+        "http://api.geonames.org/postalCodeSearch?placename=${state.abbreviation}&username=allisoneer"
     }
 
     def setGetAddressForTest() {
-        DownloadService.metaClass."getAddress" = {Country country ->
-            File downloadFile = new File("web-app/data/miniUS")
+        DownloadService.metaClass."getAddress" = {State state ->
+            File downloadFile = new File("web-app/source/${state.abbreviation}")
             downloadFile.getParentFile().mkdirs()
             downloadFile.createNewFile()
             def downloadFilename = downloadFile.absolutePath
@@ -67,8 +75,8 @@ class DownloadService {
     }
 
     def resetGetAddress() {
-        DownloadService.metaClass."getAddress" = {Country country ->
-            "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+        DownloadService.metaClass."getAddress" = {State state ->
+            "http://api.geonames.org/postalCodeSearch?placename=${state.abbreviation}&username=allisoneer"
         }
     }
 

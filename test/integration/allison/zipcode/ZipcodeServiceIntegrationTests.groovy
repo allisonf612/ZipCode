@@ -5,16 +5,16 @@ import org.junit.*
 
 class ZipcodeServiceIntegrationTests {
     def unitedStates
+    def minnesota
+    def wisconsin
     def zipcodeService
     def downloadService
 
     @Before
     void setUp() {
-        unitedStates = new Country(name: "United States of America",
-                countryCode: "US").save()
-
-        assertTrue unitedStates.validate()
-        assertNotNull unitedStates.save()
+        unitedStates = Country.findByCountryCode("US")
+        minnesota = State.findByAbbreviation("MN")
+        wisconsin = State.findByAbbreviation("WI")
     }
 
     @After
@@ -28,40 +28,45 @@ class ZipcodeServiceIntegrationTests {
     @Test
     void testLoad() {
 
+        def mini = new Country(name: "Mini", countryCode: "MI").save()
+        def state1 = new State(name: "State 1", abbreviation: "S1", country: "MI")
+        def state2 = new State(name:  "State 2", abbreviation: "S2", country: "MI")
+        mini.addToStates(state1)
+        mini.addToStates(state2)
+        mini.save(flush: true)
+
         downloadService.setGetAddressForTest()
 
-        ZipcodeService.clearZipcodes(unitedStates.id)
-        assertNotNull unitedStates
-        zipcodeService.load(unitedStates.id)
+        ZipcodeService.clearZipcodes(mini.id)
+        assertNotNull mini
+        zipcodeService.load(mini.id)
 
-        // There are two states in the country, Texas and Washington
-        assertEquals 2, unitedStates.states.size()
-        assertTrue new State(name: "Texas") in unitedStates.states
-        assertTrue new State(name: "Washington") in unitedStates.states
+        assertTrue state1 in mini.states
+        assertTrue state2 in mini.states
+        assertEquals 2, mini.states.size()
 
         // There is a single zipcode in each state
-        assertEquals 1, unitedStates.states.toList()[0].zipcodes.size()
-        assertTrue new Zipcode(postalCode: "75462",
-                                name: "Paris",
-                                countryCode: "US",
-                                lat: 33.68045,
-                                lng: -95.49054,
-                                adminCode1: "TX",
-                                adminName1: "Texas",
-                                adminCode2: "277",
-                                adminName2: "Lamar",) in
-                unitedStates.states.toList()[0].zipcodes
-        assertEquals 1, unitedStates.states.toList()[1].zipcodes.size()
+        assertEquals 1, state1.zipcodes.size()
+        assertTrue new Zipcode(postalCode: "03060",
+                                name: "Nashua",
+                                countryCode: "MI",
+                                lat: 42.7564,
+                                lng: -71.46668,
+                                adminCode1: "S1",
+                                adminName1: "State 1",
+                                adminCode2: "011",
+                                adminName2: "Hillsborough",) in state1.zipcodes
+
+        assertEquals 1, state2.zipcodes.size()
         assertTrue new Zipcode(postalCode: "98104",
                 name: "Seattle",
-                countryCode: "US",
+                countryCode: "MI",
                 lat: 47.60363,
                 lng: -122.32564,
-                adminCode1: "WA",
-                adminName1: "Washington",
+                adminCode1: "S2",
+                adminName1: "State 2",
                 adminCode2: "033",
-                adminName2: "King",) in
-                unitedStates.states.toList()[1].zipcodes
+                adminName2: "King",) in state2.zipcodes
 
 
         // Reset the getAddress method:
@@ -121,9 +126,9 @@ class ZipcodeServiceIntegrationTests {
                 adminCode2: "163",
                 adminName2: "Washington")
 
-        def invalidZipcode = new Zipcode(postalCode: "55082a",
+        def invalidZipcode = new Zipcode(postalCode: "55082",
                 name: "Stillwater",
-                countryCode: "US",
+                countryCode: "CA",
                 lat: 45.06142,
                 lng: -92.84736,
                 adminCode1: "WI",
@@ -136,69 +141,17 @@ class ZipcodeServiceIntegrationTests {
         assertNull Zipcode.findByPostalCode(invalidZipcode.postalCode)
 
         // successful add of valid zipcode
-        ZipcodeService.addZipcodeToCountry(unitedStates, validZipcode)
-        def state = State.findByName("Minnesota")
-        assertTrue validZipcode in state.zipcodes
+        ZipcodeService.addZipcodeToState(minnesota, validZipcode)
+        assertTrue validZipcode in minnesota.zipcodes
 
         // Unsuccessful add of invalid zipcode
-        ZipcodeService.addZipcodeToCountry(unitedStates, invalidZipcode)
-        assertFalse invalidZipcode in state.zipcodes
-    }
-
-    @Test
-    void testGetState() {
-
-        def stateName = "Minnesota"
-
-        CreateNewState:
-        {
-            // Verify that Minnesota does not exist
-            assertNull State.findByName(stateName)
-
-            // Create the state
-            def state = ZipcodeService.getState(unitedStates, stateName)
-            assertTrue state in unitedStates.states
-            assertNotNull State.findByName(stateName)
-        }
-
-        FindExistingState:
-        {
-            def minnesota = State.findByName(stateName)
-            // Verify that Minnesota already exists
-            assertNotNull minnesota
-
-            // Add a zipcode to verify it is still there after the get
-            def zipcode = new Zipcode(postalCode: "55082",
-                    name: "Stillwater",
-                    countryCode: "US",
-                    lat: 45.06142,
-                    lng: -92.84736,
-                    adminCode1: "MN",
-                    adminName1: "Minnesota",
-                    adminCode2: "163",
-                    adminName2: "Washington")
-
-            minnesota.addToZipcodes(zipcode)
-            minnesota.save(flush: true)
-
-            def state = ZipcodeService.getState(unitedStates, stateName)
-            assertEquals stateName, state.name
-            assertTrue state in unitedStates.states
-            assertNotNull State.findByName(stateName)
-            assertTrue zipcode in state.zipcodes
-        }
-
+        ZipcodeService.addZipcodeToState(wisconsin, invalidZipcode)
+        assertFalse invalidZipcode in wisconsin.zipcodes
     }
 
 
     @Test
     void testClearZipcodes() {
-
-        // Add some states with zipcodes
-        def minnesota = new State(name: "Minnesota")
-        unitedStates.addToStates(minnesota)
-        unitedStates.save(flush: true)
-
         def zipcode = new Zipcode(postalCode: "55082",
                 name: "Stillwater",
                 countryCode: "US",
@@ -211,10 +164,6 @@ class ZipcodeServiceIntegrationTests {
 
         minnesota.addToZipcodes(zipcode)
         minnesota.save(flush: true)
-
-        def wisconsin = new State(name: "Wisconsin")
-        unitedStates.addToStates(wisconsin)
-        unitedStates.save(flush: true)
 
         def zipcode2 = new Zipcode(postalCode: "53004",
                             name: "Belgium",
@@ -229,19 +178,16 @@ class ZipcodeServiceIntegrationTests {
         wisconsin.save(flush: true)
 
         // Verify that the states and zipcodes are there
-        assertEquals 2, unitedStates.states.size()
-        for (state in unitedStates.states) {
-            assertEquals 1, state.zipcodes.size()
-        }
+        assertEquals 1, minnesota.zipcodes.size()
+        assertEquals 1, wisconsin.zipcodes.size()
 
         ZipcodeService.clearZipcodes(unitedStates.id)
 
-        // Verify that the states and zipcodes are gone
-        // and the country remains
+        // Verify that the zipcodes are gone
+        // and the states and country remains
         assertTrue Country.exists(unitedStates.id)
-        assertEquals 0, unitedStates.states.size()
-        assertFalse State.exists(minnesota.id)
-        assertFalse State.exists(wisconsin.id)
+        assertTrue State.exists(minnesota.id)
+        assertTrue State.exists(wisconsin.id)
         assertFalse Zipcode.exists(zipcode.id)
         assertFalse Zipcode.exists(zipcode2.id)
 
@@ -250,47 +196,44 @@ class ZipcodeServiceIntegrationTests {
 
     @Test
     void testGenerateTagCloud() {
+        def canada = new Country(name: "Canada", countryCode: "CA").save()
         assertEquals [:],
-            ZipcodeService.generateTagCloud(unitedStates.id)
-
-        def minnesota = new State(name: "Minnesota")
-        unitedStates.addToStates(minnesota)
-        unitedStates.save(flush: true)
+            ZipcodeService.generateTagCloud(canada.id)
 
         def zipcode = new Zipcode(postalCode: "55082",
                 name: "Stillwater",
-                countryCode: "US",
+                countryCode: "CA",
                 lat: 45.06142,
                 lng: -92.84736,
-                adminCode1: "MN",
-                adminName1: "Minnesota",
+                adminCode1: "QE",
+                adminName1: "Quebec",
                 adminCode2: "163",
                 adminName2: "Washington")
 
-        minnesota.addToZipcodes(zipcode)
-        minnesota.save(flush: true)
-
-        def wisconsin = new State(name: "Wisconsin")
-        unitedStates.addToStates(wisconsin)
-        unitedStates.save(flush: true)
+        def quebec = new State(name: "Quebec", abbreviation: "QE", countryCode: "CA")
+        canada.addToStates(quebec)
+        quebec.addToZipcodes(zipcode)
+        canada.save(flush: true)
 
         def zipcode2 = new Zipcode(postalCode: "53004",
                 name: "Belgium",
-                countryCode: "US",
+                countryCode: "CA",
                 lat: 43.49946,
                 lng: -87.85091,
-                adminCode1: "WI",
-                adminName1: "Wisconsin",
+                adminCode1: "OT",
+                adminName1: "Other",
                 adminCode2: "089",
                 adminName2: "Ozaukee")
-        wisconsin.addToZipcodes(zipcode2)
-        wisconsin.save(flush: true)
 
-        ZipcodeService.generateTagCloud(unitedStates.id).each {k,v->
-            assertEquals v, ["Minnesota": 1, "Wisconsin": 1][k]
+        def other = new State(name: "Other", abbreviation: "OT", countryCode: "CA")
+        canada.addToStates(other)
+        other.addToZipcodes(zipcode2)
+
+        ZipcodeService.generateTagCloud(canada.id).each {k,v->
+            assertEquals v, ["Quebec": 1, "Other": 1][k]
         }
 
-        assertEquals ZipcodeService.generateTagCloud(unitedStates.id).size(),
-                ["Minnesota": 1, "Wisconsin": 1].size()
+        assertEquals ZipcodeService.generateTagCloud(canada.id).size(),
+                ["Quebec": 1, "Other": 1].size()
     }
 }
