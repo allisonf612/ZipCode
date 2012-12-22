@@ -15,7 +15,7 @@ This software downloads the zipcodes for a given country code.  Master branch on
     * Delete country
     * Zipcode creation is limited to those parsed from loaded xml
     * Loads states during BootStrap
-    * Unit and Integration tests
+    * Unit, Integration and Functional tests
 
 # Limitations
 * master Branch
