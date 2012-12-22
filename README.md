@@ -15,11 +15,10 @@ This software downloads the zipcodes for a given country code.  Master branch on
     * Delete country
     * Zipcode creation is limited to those parsed from loaded xml
     * Loads states during BootStrap
+    * Unit and Integration tests
 
 # Limitations
 * master Branch
     * Controller unit tests don't all pass
     * Validators on Zipcode class limit functionality to US format but other country codes will not break it
-* downloadByStateAbbr Branch
-    * State creation is limited to those programatically added (eg, during BootStrap)
 
