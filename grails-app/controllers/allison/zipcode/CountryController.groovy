@@ -31,9 +31,9 @@ class CountryController {
         } catch (UnableToDownloadException ex) {
             flash.message = ex.message
         } catch (FileNotFoundException ex) {
-            flash.message = "Unable to save data f"
+            flash.message = "Unable to save data"
         }
-
+        print "Load finished, about to redirect"
         redirect(action: "show", params: params)
     }
 

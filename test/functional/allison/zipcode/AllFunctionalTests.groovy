@@ -15,16 +15,16 @@ class AllFunctionalTests extends BrowserTestCase {
         get("http://localhost:8080/ZipCode/country/create")
 
         form("createForm") {
-            name = "United States of America"
-            countryCode = "US"
+            name = "Canada"
+            countryCode = "CA"
             click "create"
         }
 
-        assertRedirectUrl("http://localhost:8080/ZipCode/country/show/1")
+        assertRedirectUrl("http://localhost:8080/ZipCode/country/show/2")
         followRedirect()
         assertTitle("Show Country")
-        assertContentContains "United States of America"
-        assertContentContains "US"
+        assertContentContains "Canada"
+        assertContentContains "CA"
         assertContentContains("created")
     }
 
@@ -63,23 +63,23 @@ class AllFunctionalTests extends BrowserTestCase {
         assertContentContains("Washington")
 
         // check for tagCloud:
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=California\" rel=\"22\">California</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Florida\" rel=\"12\">Florida</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Georgia\" rel=\"2\">Georgia</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Idaho\" rel=\"2\">Idaho</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Illinois\" rel=\"4\">Illinois</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Indiana\" rel=\"1\">Indiana</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Massachusetts\" rel=\"27\">Massachusetts</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Michigan\" rel=\"1\">Michigan</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Minnesota\" rel=\"1\">Minnesota</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Missouri\" rel=\"1\">Missouri</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Nevada\" rel=\"7\">Nevada</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=New+York\" rel=\"9\">New York</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=North+Carolina\" rel=\"1\">North Carolina</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Oklahoma\" rel=\"1\">Oklahoma</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Rhode+Island\" rel=\"1\">Rhode Island</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Texas\" rel=\"7\">Texas</a>"
-        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Washington\" rel=\"1\">Washington</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=California\" rel=\"96\">California</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Florida\" rel=\"99\">Florida</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Georgia\" rel=\"89\">Georgia</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Idaho\" rel=\"100\">Idaho</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Illinois\" rel=\"98\">Illinois</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Indiana\" rel=\"9\">Indiana</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Massachusetts\" rel=\"100\">Massachusetts</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Michigan\" rel=\"98\">Michigan</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Minnesota\" rel=\"100\">Minnesota</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Missouri\" rel=\"85\">Missouri</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Nevada\" rel=\"98\">Nevada</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=New+York\" rel=\"99\">New York</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=North+Carolina\" rel=\"100\">North Carolina</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Oklahoma\" rel=\"100\">Oklahoma</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Rhode+Island\" rel=\"91\">Rhode Island</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Texas\" rel=\"100\">Texas</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Washington\" rel=\"96\">Washington</a>"
     }
 
 
@@ -88,27 +88,30 @@ class AllFunctionalTests extends BrowserTestCase {
         assertTitle "State List"
 
         // check for the states
+        assertContentContains("Alabama")
+        assertContentContains("Alaska")
+        assertContentContains("Arizona")
+        assertContentContains("Arkansas")
         assertContentContains("California")
+        assertContentContains("Colorado")
+        assertContentContains("Connecticut")
+        assertContentContains("Delaware")
+        assertContentContains("District of Columbia")
         assertContentContains("Florida")
-        assertContentContains("Georgia")
-        assertContentContains("Idaho")
-        assertContentContains("Illinois")
-        assertContentContains("Indiana")
-        assertContentContains("Massachusetts")
-        assertContentContains("Michigan")
-        assertContentContains("Minnesota")
-        assertContentContains("Missouri")
 
         // Check second page
         get("http://localhost:8080/ZipCode/state/list?offset=10&max=10")
 
-        assertContentContains("Nevada")
-        assertContentContains("New York")
-        assertContentContains("North Carolina")
-        assertContentContains("Oklahoma")
-        assertContentContains("Rhode Island")
-        assertContentContains("Texas")
-        assertContentContains("Washington")
+        assertContentContains("Georgia")
+        assertContentContains("Hawaii")
+        assertContentContains("Idaho")
+        assertContentContains("Illinois")
+        assertContentContains("Indiana")
+        assertContentContains("Iowa")
+        assertContentContains("Kansas")
+        assertContentContains("Kentucky")
+        assertContentContains("Louisiana")
+        assertContentContains("Maine")
     }
 
     void testZipcodeList() {
@@ -152,45 +155,43 @@ class AllFunctionalTests extends BrowserTestCase {
         assertContentContains "United States of America"
         assertContentContains "US"
 
-        // Verify states are gone from country
-        assertContentDoesNotContain("California")
-        assertContentDoesNotContain("Florida")
-        assertContentDoesNotContain("Georgia")
-        assertContentDoesNotContain("Idaho")
-        assertContentDoesNotContain("Illinois")
-        assertContentDoesNotContain("Indiana")
-        assertContentDoesNotContain("Massachusetts")
-        assertContentDoesNotContain("Michigan")
-        assertContentDoesNotContain("Minnesota")
-        assertContentDoesNotContain("Missouri")
-        assertContentDoesNotContain("Nevada")
-        assertContentDoesNotContain("New York")
-        assertContentDoesNotContain("North Carolina")
-        assertContentDoesNotContain("Oklahoma")
-        assertContentDoesNotContain("Rhode Island")
-        assertContentDoesNotContain("Texas")
-        assertContentDoesNotContain("Washington")
+        // Verify states are still there
+        assertContentContains("California")
+        assertContentContains("Florida")
+        assertContentContains("Georgia")
+        assertContentContains("Idaho")
+        assertContentContains("Illinois")
+        assertContentContains("Indiana")
+        assertContentContains("Massachusetts")
+        assertContentContains("Michigan")
+        assertContentContains("Minnesota")
+        assertContentContains("Missouri")
+        assertContentContains("Nevada")
+        assertContentContains("New York")
+        assertContentContains("North Carolina")
+        assertContentContains("Oklahoma")
+        assertContentContains("Rhode Island")
+        assertContentContains("Texas")
+        assertContentContains("Washington")
 
-        // Verify states are gone from state list
-        get("http://localhost:8080/ZipCode/state/list")
-        assertTitle "State List"
-        assertContentDoesNotContain("California")
-        assertContentDoesNotContain("Florida")
-        assertContentDoesNotContain("Georgia")
-        assertContentDoesNotContain("Idaho")
-        assertContentDoesNotContain("Illinois")
-        assertContentDoesNotContain("Indiana")
-        assertContentDoesNotContain("Massachusetts")
-        assertContentDoesNotContain("Michigan")
-        assertContentDoesNotContain("Minnesota")
-        assertContentDoesNotContain("Missouri")
-        assertContentDoesNotContain("Nevada")
-        assertContentDoesNotContain("New York")
-        assertContentDoesNotContain("North Carolina")
-        assertContentDoesNotContain("Oklahoma")
-        assertContentDoesNotContain("Rhode Island")
-        assertContentDoesNotContain("Texas")
-        assertContentDoesNotContain("Washington")
+        // Verify tag cloud states all show 0
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=California\" rel=\"0\">California</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Florida\" rel=\"0\">Florida</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Georgia\" rel=\"0\">Georgia</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Idaho\" rel=\"0\">Idaho</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Illinois\" rel=\"0\">Illinois</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Indiana\" rel=\"0\">Indiana</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Massachusetts\" rel=\"0\">Massachusetts</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Michigan\" rel=\"0\">Michigan</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Minnesota\" rel=\"0\">Minnesota</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Missouri\" rel=\"0\">Missouri</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Nevada\" rel=\"0\">Nevada</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=New+York\" rel=\"0\">New York</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=North+Carolina\" rel=\"0\">North Carolina</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Oklahoma\" rel=\"0\">Oklahoma</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Rhode+Island\" rel=\"0\">Rhode Island</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Texas\" rel=\"0\">Texas</a>"
+        assertContentContains "<a href=\"/ZipCode/state/show/1?stateName=Washington\" rel=\"0\">Washington</a>"
 
         // Verify zipcodes are gone from state list
         get("http://localhost:8080/ZipCode/zipcode/list")
