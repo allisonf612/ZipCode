@@ -65,8 +65,8 @@ class DownloadService {
     }
 
     def setGetAddressForTest() {
-        DownloadService.metaClass."getAddress" = {Country country ->
-            File downloadFile = new File("web-app/data/miniUS")
+        DownloadService.metaClass."getAddress" = {State state ->
+            File downloadFile = new File("web-app/data/miniUS/${state.abbreviation}")
             downloadFile.getParentFile().mkdirs()
             downloadFile.createNewFile()
             def downloadFilename = downloadFile.absolutePath
@@ -75,8 +75,8 @@ class DownloadService {
     }
 
     def resetGetAddress() {
-        DownloadService.metaClass."getAddress" = {Country country ->
-            "http://api.geonames.org/postalCodeSearch?placename=${country.countryCode}&username=allisoneer"
+        DownloadService.metaClass."getAddress" = {State state ->
+            "http://api.geonames.org/postalCodeSearch?placename=${state.abbreviation}&username=allisoneer"
         }
     }
 
