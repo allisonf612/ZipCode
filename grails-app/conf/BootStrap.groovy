@@ -51,7 +51,13 @@ class BootStrap {
                                                  // static abbreviation and countryCode
                     state.name = name
                 }
-                unitedStates.save(flush: true) // save for each state
+
+                state.validate()
+                if (state.hasErrors() || !unitedStates.save(failOnError: true, flush: true)) {
+                    unitedStates.removeFromStates(state)
+                    unitedStates.save()
+                }
+//                    unitedStates.save(flush: true, failOnError: true) // save for each state
             }
         }
     }

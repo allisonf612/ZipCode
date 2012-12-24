@@ -1,5 +1,7 @@
 package allison.zipcode
 
+import com.sun.xml.internal.ws.wsdl.writer.document.StartWithExtensionsType
+
 import static org.junit.Assert.*
 import org.junit.*
 
@@ -27,13 +29,24 @@ class ZipcodeServiceIntegrationTests {
      */
     @Test
     void testLoad() {
-
-        def mini = new Country(name: "Mini", countryCode: "MI").save()
-        def state1 = new State(name: "State 1", abbreviation: "S1", country: "MI")
-        def state2 = new State(name:  "State 2", abbreviation: "S2", country: "MI")
-        mini.addToStates(state1)
-        mini.addToStates(state2)
+        def mini = Country.findByNameAndCountryCode("Mini", "MI")
+        if (!mini) {
+            mini = new Country(name: "Mini", countryCode: "MI").save()
+        }
+        def state1 = State.findByNameAndAbbreviation("State 1", "S1")
+        if (!state1 || !(state1 in mini.states)) {
+            state1 = new State(name: "State 1", abbreviation: "S1", countryCode: "MI")
+            mini.addToStates(state1)
+        }
         mini.save(flush: true)
+        def state2 = State.findByNameAndAbbreviation("State 2", "S2")
+        if (!state2 || !(state2 in mini.states)) {
+            state2 = new State(name: "State 2", abbreviation: "S2", countryCode: "MI")
+            mini.addToStates(state2)
+        }
+        mini.save(flush: true)
+        println "State 1 id: " + state1.id
+        println "State 2 id: " + state2.id
 
         downloadService.setGetAddressForTest()
 
