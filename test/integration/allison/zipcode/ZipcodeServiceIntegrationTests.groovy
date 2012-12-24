@@ -114,7 +114,7 @@ class ZipcodeServiceIntegrationTests {
 
 
     @Test
-    void testAddZipcodeToCountry() {
+    void testAddZipcodeToState() {
 
         def validZipcode = new Zipcode(postalCode: "55082",
                 name: "Stillwater",
