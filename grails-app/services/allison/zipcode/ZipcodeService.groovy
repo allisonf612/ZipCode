@@ -1,7 +1,13 @@
 package allison.zipcode
 
+
+import jsr166y.ForkJoinPool
+import groovyx.gpars.GParsPool
+
+
 class ZipcodeService {
     def downloadService
+
 
     /**
      * Download the zipcodes, add them to the Domain, and update the tag cloud
@@ -19,41 +25,76 @@ class ZipcodeService {
         def dir = DownloadService.getCountryDir(country)
         FileUtils.deleteDirectory(new File(dir))
 
-        def file
-        def address
-        def xml
-        def allCodes
-        def zipcode
-        def slurper = new XmlSlurper()
+//        def file
+//        def address
+//        def xml
+//        def allCodes
+//        def zipcode
+//        def slurper = new XmlSlurper()
+
+
 
         def start = System.currentTimeMillis()
-        country.states.each {
 
-            file = DownloadService.getStateFileName(it)
-            address = downloadService.getAddress(it)
-            println "Downloading file: ${file}"
-            try {
+//        country.states.each { state ->
+//            def file = DownloadService.getStateFileName(state)
+//            def address = downloadService.getAddress(state)
+//            println "Downloading file: ${file}"
+//            try {
+//
+//                // Download zip codes
+//                DownloadService.download(file, address)
+//
+//                // Only clear the zip codes on a successful download
+//                clearZipcodes(state)
+//            } catch (FileNotFoundException ex) {
+//                throw new UnableToDownloadException(message: "Unable to create ${file} from download")
+//            }
+//
+//        }
+        GParsPool.withPool {
+            country.states.eachParallel { state ->
+                def file = DownloadService.getStateFileName(state)
+                def address = downloadService.getAddress(state)
+                println "Downloading file: ${file}"
+                try {
 
-                // Download zip codes
-                DownloadService.download(file, address)
+                    // Download zip codes
+                    DownloadService.download(file, address)
+                    Zipcode.withTransaction {
+                        State.withTransaction {
+                            // Only clear the zip codes on a successful download
+                            clearZipcodes(state)
 
-                // Only clear the zip codes on a successful download
-                clearZipcodes(country, it)
+                            // Slurp and save in Domain
+                            def xml = new XmlSlurper().parse(file)
+        //                    xml = slurper.parse(file)
+        //                    def allCodes = xml.code
 
-                // Slurp and save in Domain
-                xml = slurper.parse(file)
-                allCodes = xml.code
-                zipcode
-                for (code in allCodes) {
-                    zipcode = ZipcodeService.slurpZipcode(code)
-                    ZipcodeService.addZipcodeToState(it, zipcode)
+                            def zipcode
+                            //for (code in allCodes) {
+                            xml.code.each {
+                                zipcode = ZipcodeService.slurpZipcode(it)
+                                ZipcodeService.addZipcodeToState(state, zipcode)
+                            }
+
+                        } // State.withTransaction
+                    } // Zipcode.withTransaction
+                } catch (FileNotFoundException ex) {
+                    throw new UnableToDownloadException(message: "Unable to create ${file} from download")
                 }
+                println "Num zipcodes: " + state?.zipcodes?.size()
+            } // country.states.each
+        } // withPool
+//        session.merge(country)
+//        }// withTransaction
 
-            } catch (FileNotFoundException ex) {
-                throw new UnableToDownloadException(message: "Unable to create ${file} from download")
-            }
-            println "Num zipcodes: " + it?.zipcodes?.size()
-        }
+//        // Wait for all the threads to finish
+//        threads.each {
+//            try {
+//                it.join()
+//            } catch (InterruptedException ignore) { println "Interrupted Exception"}
+//        }
 
         println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
 
@@ -84,16 +125,39 @@ class ZipcodeService {
 
 
     static addZipcodeToState(State state, Zipcode zipcode) {
-
         if (state) {
             // Only add the zipcode if it is valid
-            state.addToZipcodes(zipcode)
-            if (zipcode.validate()) {
-                state.save()
-            } else {
-                state.removeFromZipcodes(zipcode)
-                zipcode.discard()
-            }
+//            state = state.lock(state.id)
+//            state.addToZipcodes(zipcode)
+//            Zipcode.withTransaction {
+//                State.withTransaction {
+                    state = State.lock(state.id) // Without this lock, zipcode validation doesn't work
+                    state.addToZipcodes(zipcode)
+//                    if (zipcode.validate()) {
+//                        state = state.lock(state.id)
+//                        state.save()
+//                    } else {
+//                        state.removeFromZipcodes(zipcode)
+//                        zipcode.discard()
+//                    }
+
+                    zipcode.validate()
+//                    state = State.lock(state.id)
+                    if (zipcode.hasErrors() ||
+                            ((state = State.lock(state.id)) && !state.save(failOnError: true, flush: true))) {
+                        state = State.lock(state.id)
+                        state.removeFromZipcodes(zipcode)
+                        zipcode.discard()
+                    }
+
+
+//                    state = state.lock(state.id)
+//                    if (! state.save()) {
+//                        state.removeFromZipcodes(zipcode)
+//                        zipcode.discard()
+//                    }
+//                } // State.withTransaction
+//            } // Zipcode.withTransaction
         }
     }
 
@@ -104,33 +168,38 @@ class ZipcodeService {
     static clearZipcodes(Long id) {
         def country = Country.get(id)
 
-        if (!country) { // If the country doesn't exist, there is nothing to do
-            return
-        }
+//        if (!country) { // If the country doesn't exist, there is nothing to do
+//            return
+//        }
 
         // For each state, for each zipcode, delete it
-        if (country.states) {
-            country.states.each { state ->
-                clearZipcodes(country, state)
+//        if (country.states) {
+
+            country?.states?.each { state ->
+                clearZipcodes(state)
             }
-        } // Nothing to do if there are no states
+//        } // Nothing to do if there are no states
     }
 
-    static clearZipcodes(Country country, State state) {
+    static clearZipcodes(State state) {
 
-        if (!country || !state) { // If the country doesn't exist, there is nothing to do
-            return
-        }
+//        if (!country || !state) { // If the country doesn't exist, there is nothing to do
+//            return
+//        }
 
         // For each zipcode, delete it
-        if(state.zipcodes) {
+//        if(state?.zipcodes)
+//        state = State.lock(state.id)
+//        state?.zipcodes?.each {
             def tmp = []
-            tmp.addAll(state.zipcodes)
+            tmp.addAll(state?.zipcodes)
             tmp.each { zipcode ->
+                state = State.lock(state.id)
                 state.removeFromZipcodes(zipcode)
+                zipcode = Zipcode.lock(zipcode.id)
                 zipcode.delete()
             }
-        } // Nothing to do if there are no zipcodes
+//        } // Nothing to do if there are no zipcodes
     }
 
     /**
