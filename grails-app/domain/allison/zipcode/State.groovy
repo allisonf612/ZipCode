@@ -19,7 +19,7 @@ class State {
         abbreviation(unique: true, size: 2..2, blank: false)
         countryCode(size: 2..2, blank: false,
              validator: {countryCode, state ->
-                  countryCode == state.country.countryCode
+                  countryCode == state?.country?.countryCode
              })
     }
 
