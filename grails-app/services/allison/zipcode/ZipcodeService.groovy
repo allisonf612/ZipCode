@@ -38,7 +38,7 @@ class ZipcodeService {
                 DownloadService.download(file, address)
 
                 // Only clear the zip codes on a successful download
-                clearZipcodes(country, it)
+                clearZipcodes(it)
 
                 // Slurp and save in Domain
                 xml = slurper.parse(file)
@@ -104,26 +104,18 @@ class ZipcodeService {
     static clearZipcodes(Long id) {
         def country = Country.get(id)
 
-        if (!country) { // If the country doesn't exist, there is nothing to do
-            return
-        }
-
         // For each state, for each zipcode, delete it
-        if (country.states) {
+        if (country?.states) {
             country.states.each { state ->
-                clearZipcodes(country, state)
+                clearZipcodes(state)
             }
         } // Nothing to do if there are no states
     }
 
-    static clearZipcodes(Country country, State state) {
-
-        if (!country || !state) { // If the country doesn't exist, there is nothing to do
-            return
-        }
+    static clearZipcodes(State state) {
 
         // For each zipcode, delete it
-        if(state.zipcodes) {
+        if(state?.zipcodes) {
             def tmp = []
             tmp.addAll(state.zipcodes)
             tmp.each { zipcode ->
