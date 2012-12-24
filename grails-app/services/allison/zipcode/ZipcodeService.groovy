@@ -129,6 +129,7 @@ class ZipcodeService {
             tmp.each { zipcode ->
                 state.removeFromZipcodes(zipcode)
                 zipcode.delete()
+                state.save(flush: true)
             }
         } // Nothing to do if there are no zipcodes
     }
