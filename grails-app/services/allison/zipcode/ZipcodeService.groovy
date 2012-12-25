@@ -2,10 +2,12 @@ package allison.zipcode
 
 
 import groovyx.gpars.GParsPool
+import org.hibernate.LockMode
 
 
 class ZipcodeService {
     def downloadService
+    def sessionFactory
 
 
     /**
@@ -26,8 +28,17 @@ class ZipcodeService {
 
         def start = System.currentTimeMillis()
 
+        // Get just the state id's so the state is never stale
+        def ids = country.states.collect { it.id }
+        println "ids: " + ids
         GParsPool.withPool {
-            country.states.eachParallel { State state ->
+
+//            country.states.eachParallel { State state ->
+              ids.eachParallel { state_id ->
+                  Zipcode.withTransaction {
+                      State.withTransaction {
+                  def state = State.load(state_id)
+                  print "State: " + state
                 def file = DownloadService.getStateFileName(state)
 
                 try {
@@ -36,27 +47,32 @@ class ZipcodeService {
 
                     // Download zip codes
                     DownloadService.download(file, address)
-                    Zipcode.withTransaction {
-                        State.withTransaction {
+//                    Zipcode.withTransaction {
+//                        State.withTransaction {
+
                             // Only clear the zip codes on a successful download
-                            ZipcodeService.clearZipcodesThreaded(state)
+                            ZipcodeService.clearZipcodes(state)
 
                             // Slurp and save in Domain
                             def xml = new XmlSlurper().parse(file)
                             def zipcode
                             xml.code.each {
                                 zipcode = ZipcodeService.slurpZipcode(it)
-                                ZipcodeService.addZipcodeToState(state, zipcode)
+//                                ZipcodeService.addZipcodeToState(state, zipcode)
+                                addZipcodeToState(state, zipcode)
                             }
                             state = State.lock(state.id)
                             println "Num zipcodes: " + state?.zipcodes?.size()//state?.zipcodes?.size()
-                        } // State.withTransaction
-                    } // Zipcode.withTransaction
+//                        } // State.withTransaction
+//                    } // Zipcode.withTransaction
                 } catch (FileNotFoundException ex) {
                     throw new UnableToDownloadException(message: "Unable to create ${file} from download")
                 } catch (UnableToDownloadException ex) {
                     throw ex
                 }
+
+                      } // State.withTransaction
+                  } // Zipcode.withTransaction
             } // country.states.each
         } // withPool
 
@@ -88,12 +104,32 @@ class ZipcodeService {
     }
 
 
-    static addZipcodeToState(State state, Zipcode zipcode) {
-        State.withTransaction {
-        if (state?.id) {  // Only add to a state that exists
-            println "add zipcode to state: " + state
-            state = State.lock(state.id) // Without this lock, zipcode validation doesn't work
-            println "after lock: " + state
+    def addZipcodeToState(State state_in, Zipcode zipcode) {
+//        State.withTransaction {
+        if (state_in?.id) {  // Only add to a state that exists
+//            println "add zipcode to state: " + state
+            def state = State.lock(state_in.id)
+            if (!state) {
+//                state_in.discard()
+                if (!state_in.isAttached()) {
+                    state_in.attach()
+                }
+                state = State.lock(state_in.id)
+//                def session = sessionFactory.currentSession
+//                state = session.load(state_in, state_in.)
+//                state_in.discard()
+//                println "State_in discarded, state_in's id is now: " + state_in.id
+//                println "State still exists: " + State.exists(state_in.id)
+////                def session = sessionFactory.currentSession
+////                session.evict(state_in)
+//                println "state_in is still there: " + (state_in in State.findAll())
+//                state_in = State.get(state_in.id)
+//                println "after get, state_in is: " + state_in
+////                state = session.load(State.class, state_in.id, LockMode.UPGRADE)
+////                state = session.load(State.class, )
+//                state = State.lock(state_in.id)
+            } // Without this lock, zipcode validation doesn't work
+//            println "after lock: " + state
             state.addToZipcodes(zipcode)
             state = State.lock(state.id)
                     if (zipcode.validate()) {
@@ -113,8 +149,8 @@ class ZipcodeService {
 //                state.removeFromZipcodes(zipcode)
 //                zipcode.discard()
 //            }
-        }
-        }
+        }  // if
+//        } // withTransaction
     }
 
 
@@ -130,26 +166,29 @@ class ZipcodeService {
 
         // For each state, for each zipcode, delete it
 //        if (country.states) {
-
-            country?.states?.each { state ->
-                clearZipcodes(state)
-            }
-//        } // Nothing to do if there are no states
-    }
-
-    static clearZipcodes(State state) {
-        def tmp = []
-        if (state?.zipcodes) {
-            tmp.addAll(state.zipcodes)
-            tmp.each { zipcode ->
-                state.removeFromZipcodes(zipcode)
-                zipcode.delete()
-                state.save(flush: true)
+        GParsPool.withPool {
+            country?.states?.eachParallel { state ->
+                State.withTransaction {
+                    clearZipcodes(state)
+                }
             }
         }
     }
 
-    static clearZipcodesThreaded(State state) {
+//    static clearZipcodes(State state) {
+//        def tmp = []
+//        if (state?.zipcodes) {
+//            tmp.addAll(state.zipcodes)
+//            tmp.each { zipcode ->
+//                state.removeFromZipcodes(zipcode)
+//                zipcode.delete()
+//
+//            }
+//            state.save(flush: true)
+//        }
+//    }
+
+    static clearZipcodes(State state) {
 
 //        if (!country || !state) { // If the country doesn't exist, there is nothing to do
 //            return
@@ -169,9 +208,9 @@ class ZipcodeService {
                     state.removeFromZipcodes(zipcode)
                     zipcode = Zipcode.lock(zipcode.id)
                     zipcode.delete()
-                    state = State.lock(state.id)
-                    state.save(flush: true)
                 }
+                state = State.lock(state.id)
+                state.save(flush: true)
             }
 //        } // Nothing to do if there are no zipcodes
     }

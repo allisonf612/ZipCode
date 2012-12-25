@@ -1,7 +1,7 @@
 package allison.zipcode
 
-import com.sun.xml.internal.ws.wsdl.writer.document.StartWithExtensionsType
 
+import groovyx.gpars.GParsPool
 import static org.junit.Assert.*
 import org.junit.*
 
@@ -154,11 +154,13 @@ class ZipcodeServiceIntegrationTests {
         assertNull Zipcode.findByPostalCode(invalidZipcode.postalCode)
 
         // successful add of valid zipcode
-        ZipcodeService.addZipcodeToState(minnesota, validZipcode)
+//        ZipcodeService.addZipcodeToState(minnesota, validZipcode)
+        zipcodeService.addZipcodeToState(minnesota, validZipcode)
         assertTrue validZipcode in minnesota.zipcodes
 
         // Unsuccessful add of invalid zipcode
-        ZipcodeService.addZipcodeToState(wisconsin, invalidZipcode)
+//        ZipcodeService.addZipcodeToState(wisconsin, invalidZipcode)
+        zipcodeService.addZipcodeToState(wisconsin, invalidZipcode)
         assertFalse invalidZipcode in wisconsin.zipcodes
     }
 
