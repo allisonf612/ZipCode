@@ -50,14 +50,17 @@ class ZipcodeService {
                             // Slurp and save in Domain
                             def xml = new XmlSlurper().parse(file)
                             def zipcodes = xml.code.collect { code ->
-                                def zipcode = ZipcodeService.parseZipcode(code)
-                                ZipcodeService.addZipcodeToState(state, zipcode)
-                                zipcode
+                                ZipcodeService.parseZipcode(code)
+                            }
+
+                            // Lock the state
+                            state = State.lock(state.id)
+                            zipcodes.each {
+                                ZipcodeService.addZipcodeToState(state, it)
                             }
 
                             // Execute the batch save
                             def saveStart = System.currentTimeMillis()
-                            state = State.lock(state.id)
                             state.save(flush: true)
                             println "State batch save zipcodes: " + (System.currentTimeMillis() - saveStart)
 
@@ -109,13 +112,10 @@ class ZipcodeService {
      */
     static addZipcodeToState(State state, Zipcode zipcode) {
         if (state?.id) {  // Only add to a state that exists
-            state = State.lock(state.id)
             state.addToZipcodes(zipcode)
-            state = State.lock(state.id)
             if (zipcode.validate()) {
                 state.save()
             } else {
-                state = State.lock(state.id)
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
             } // if
@@ -153,27 +153,15 @@ class ZipcodeService {
      * @return
      */
     static clearZipcodes(State state) {
-
-//        if (!country || !state) { // If the country doesn't exist, there is nothing to do
-//            return
-//        }
-
-        // For each zipcode, delete it
-//        if(state?.zipcodes)
-//        state = State.lock(state.id)
-//        state?.zipcodes?.each {
             def tmp = []
             state = State.lock(state.id)
             if (state?.zipcodes) {
-                state = State.lock(state.id)
                 tmp.addAll(state.zipcodes)
                 tmp.each { zipcode ->
-                    state = State.lock(state.id)
                     state.removeFromZipcodes(zipcode)
                     zipcode = Zipcode.lock(zipcode.id)
                     zipcode.delete()
                 }
-                state = State.lock(state.id)
                 state.save(flush: true)
             }
 //        } // Nothing to do if there are no zipcodes
