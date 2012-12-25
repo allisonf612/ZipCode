@@ -4,7 +4,7 @@ class ZipcodeService {
     def downloadService
 
     /**
-     * Download the zipcodes, add them to the Domain, and update the tag cloud
+     * Download the zipcodes, add them to the Domain
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
@@ -81,7 +81,13 @@ class ZipcodeService {
 
     }
 
-
+    /**
+     * Add a zipcode to the state or discard it if it is not
+     * valid
+     * @param state The state to add the zipcode to
+     * @param zipcode The zipcode to add
+     * @return
+     */
     static addZipcodeToState(State state, Zipcode zipcode) {
 
         if (state) {
@@ -96,9 +102,10 @@ class ZipcodeService {
         }
     }
 
-
     /**
-     * Clear all zip code data
+     * Clear all zipcodes for a country
+     * @param id The id of the country to remove zipcodes from
+     * @return
      */
     static clearZipcodes(Long id) {
         def country = Country.get(id)
@@ -111,6 +118,11 @@ class ZipcodeService {
         } // Nothing to do if there are no states
     }
 
+    /**
+     * Clear all zipcode data for a state
+     * @param state The state to remove zipcodes from
+     * @return
+     */
     static clearZipcodes(State state) {
 
         // For each zipcode, delete it
