@@ -9,7 +9,7 @@ class ZipcodeService {
 
 
     /**
-     * Download the zipcodes, add them to the Domain, and update the tag cloud
+     * Download the zipcodes, add them to the Domain
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
@@ -45,13 +45,17 @@ class ZipcodeService {
 
                             // Slurp and save in Domain
                             def xml = new XmlSlurper().parse(file)
-                            def zipcode
-                            xml.code.each {
-                                zipcode = ZipcodeService.parseZipcode(it)
+                            def zipcodes = xml.code.collect { code ->
+                                def zipcode = ZipcodeService.parseZipcode(code)
                                 ZipcodeService.addZipcodeToState(state, zipcode)
+                                zipcode
                             }
-                            state = State.lock(state.id)
-                            println "Num zipcodes: " + state?.zipcodes?.size()
+
+                            // Execute the batch save
+                            state.save(flush: true)
+
+//                            state = State.lock(state.id)
+//                            println "Num zipcodes: " + state?.zipcodes?.size()
                         } // State.withTransaction
                     } // Zipcode.withTransaction
                 } catch (FileNotFoundException ex) {
@@ -59,6 +63,8 @@ class ZipcodeService {
                 } catch (UnableToDownloadException ex) {
                     throw ex
                 }
+                state = State.lock(state.id)
+                println "Num zipcodes: " + state?.zipcodes?.size()
             } // country.states.each
         } // withPool
 
@@ -89,7 +95,13 @@ class ZipcodeService {
 
     }
 
-
+    /**
+     * Add a zipcode to the state or discard it if it is not
+     * valid
+     * @param state The state to add the zipcode to
+     * @param zipcode The zipcode to add
+     * @return
+     */
     static addZipcodeToState(State state, Zipcode zipcode) {
         if (state?.id) {  // Only add to a state that exists
             state = State.lock(state.id)
@@ -107,7 +119,9 @@ class ZipcodeService {
 
 
     /**
-     * Clear all zip code data
+     * Clear all zipcodes for a country
+     * @param id The id of the country to remove zipcodes from
+     * @return
      */
     static clearZipcodes(Long id) {
         def country = Country.get(id)
@@ -127,19 +141,12 @@ class ZipcodeService {
         }
     }
 
-//    static clearZipcodes(State state) {
-//        def tmp = []
-//        if (state?.zipcodes) {
-//            tmp.addAll(state.zipcodes)
-//            tmp.each { zipcode ->
-//                state.removeFromZipcodes(zipcode)
-//                zipcode.delete()
-//
-//            }
-//            state.save(flush: true)
-//        }
-//    }
 
+    /**
+     * Clear all zipcode data for a state
+     * @param state The state to remove zipcodes from
+     * @return
+     */
     static clearZipcodes(State state) {
 
 //        if (!country || !state) { // If the country doesn't exist, there is nothing to do
