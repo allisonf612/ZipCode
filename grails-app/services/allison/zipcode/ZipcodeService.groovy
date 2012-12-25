@@ -36,12 +36,16 @@ class ZipcodeService {
                     println "Downloading file: ${file}"
 
                     // Download zip codes
+                    def downloadStart = System.currentTimeMillis()
                     DownloadService.download(file, address)
+                    println "Download time: " + (System.currentTimeMillis() - downloadStart)
                     Zipcode.withTransaction {
                         State.withTransaction {
 
                             // Only clear the zip codes on a successful download
+                            def clearStart = System.currentTimeMillis()
                             ZipcodeService.clearZipcodes(state)
+                            println "Clear time: " + (System.currentTimeMillis() - clearStart)
 
                             // Slurp and save in Domain
                             def xml = new XmlSlurper().parse(file)
@@ -52,10 +56,13 @@ class ZipcodeService {
                             }
 
                             // Execute the batch save
+                            def saveStart = System.currentTimeMillis()
+                            state = State.lock(state.id)
                             state.save(flush: true)
+                            println "State batch save zipcodes: " + (System.currentTimeMillis() - saveStart)
 
-//                            state = State.lock(state.id)
-//                            println "Num zipcodes: " + state?.zipcodes?.size()
+                            state = State.lock(state.id)
+                            println "Num zipcodes: " + state?.zipcodes?.size()
                         } // State.withTransaction
                     } // Zipcode.withTransaction
                 } catch (FileNotFoundException ex) {
@@ -63,8 +70,6 @@ class ZipcodeService {
                 } catch (UnableToDownloadException ex) {
                     throw ex
                 }
-                state = State.lock(state.id)
-                println "Num zipcodes: " + state?.zipcodes?.size()
             } // country.states.each
         } // withPool
 
