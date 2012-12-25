@@ -1,7 +1,5 @@
 package allison.zipcode
 
-
-import groovyx.gpars.GParsPool
 import static org.junit.Assert.*
 import org.junit.*
 
@@ -122,7 +120,7 @@ class ZipcodeServiceIntegrationTests {
         def xml = new XmlSlurper().parseText(xmlTest)
         def allCodes = xml.code
         assertEquals 1, allCodes.size()
-        assertEquals zipcode, ZipcodeService.slurpZipcode(allCodes[0])
+        assertEquals zipcode, ZipcodeService.parseZipcode(allCodes[0])
     }
 
 
