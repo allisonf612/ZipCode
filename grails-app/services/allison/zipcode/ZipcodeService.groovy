@@ -22,7 +22,6 @@ class ZipcodeService {
         def file
         def address
         def xml
-//        def allCodes
         def slurper = new XmlSlurper()
 
         def start = System.currentTimeMillis()
@@ -47,14 +46,7 @@ class ZipcodeService {
                     zipcode
                 }
 
-                it.save(flush: true)
-
-//                allCodes = xml.code
-//                zipcode
-//                for (code in allCodes) {
-//                    zipcode = ZipcodeService.slurpZipcode(code)
-//                    ZipcodeService.addZipcodeToState(it, zipcode)
-//                }
+                it.save(flush: true) // Save all the added zipcodes
 
             } catch (FileNotFoundException ex) {
                 throw new UnableToDownloadException(message: "Unable to create ${file} from download")
@@ -96,21 +88,11 @@ class ZipcodeService {
             // Only add the zipcode if it is valid
             state.addToZipcodes(zipcode)
             if (!zipcode.validate()) {
-//                state.save()
-//                return zipcode
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
             }
-//            else {
-//                state.save()
-//            }
-
-//            return null
-//            } else {
-//
-//                state.removeFromZipcodes(zipcode)
-//                zipcode.discard()
-//            }
+        } else {
+            zipcode.discard() // Get rid of the zipcode if there is no state to add it to
         }
     }
 
