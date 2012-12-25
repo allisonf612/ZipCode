@@ -41,7 +41,7 @@ class ZipcodeService {
                 // Slurp and save in Domain
                 xml = slurper.parse(file)
                 def zipcodes = xml.code.collect { code ->
-                    def zipcode = ZipcodeService.slurpZipcode(code)
+                    def zipcode = ZipcodeService.parseZipcode(code)
                     ZipcodeService.addZipcodeToState(it, zipcode)
                     zipcode
                 }
@@ -64,7 +64,7 @@ class ZipcodeService {
      * @param xml
      * @return
      */
-    static slurpZipcode(xml) {
+    static parseZipcode(xml) {
         new Zipcode (
                 postalCode: xml.postalcode.text(),
                 name: xml.name.text(),
