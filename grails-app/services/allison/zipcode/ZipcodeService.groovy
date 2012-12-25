@@ -17,13 +17,12 @@ class ZipcodeService {
 
         // Delete old xml files
         def dir = DownloadService.getCountryDir(country)
-        FileUtils.deleteDirectory(new File(dir))
+//        FileUtils.deleteDirectory(new File(dir))
 
         def file
         def address
         def xml
-        def allCodes
-        def zipcode
+//        def allCodes
         def slurper = new XmlSlurper()
 
         def start = System.currentTimeMillis()
@@ -35,19 +34,27 @@ class ZipcodeService {
             try {
 
                 // Download zip codes
-                DownloadService.download(file, address)
+//                DownloadService.download(file, address)
 
                 // Only clear the zip codes on a successful download
                 clearZipcodes(it)
 
                 // Slurp and save in Domain
                 xml = slurper.parse(file)
-                allCodes = xml.code
-                zipcode
-                for (code in allCodes) {
-                    zipcode = ZipcodeService.slurpZipcode(code)
+                def zipcodes = xml.code.collect { code ->
+                    def zipcode = ZipcodeService.slurpZipcode(code)
                     ZipcodeService.addZipcodeToState(it, zipcode)
+                    zipcode
                 }
+
+                it.save(flush: true)
+
+//                allCodes = xml.code
+//                zipcode
+//                for (code in allCodes) {
+//                    zipcode = ZipcodeService.slurpZipcode(code)
+//                    ZipcodeService.addZipcodeToState(it, zipcode)
+//                }
 
             } catch (FileNotFoundException ex) {
                 throw new UnableToDownloadException(message: "Unable to create ${file} from download")
@@ -88,12 +95,22 @@ class ZipcodeService {
         if (state) {
             // Only add the zipcode if it is valid
             state.addToZipcodes(zipcode)
-            if (zipcode.validate()) {
-                state.save()
-            } else {
+            if (!zipcode.validate()) {
+//                state.save()
+//                return zipcode
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
             }
+//            else {
+//                state.save()
+//            }
+
+//            return null
+//            } else {
+//
+//                state.removeFromZipcodes(zipcode)
+//                zipcode.discard()
+//            }
         }
     }
 
