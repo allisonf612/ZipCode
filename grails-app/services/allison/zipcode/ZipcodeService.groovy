@@ -43,9 +43,7 @@ class ZipcodeService {
                         State.withTransaction {
 
                             // Only clear the zip codes on a successful download
-                            def clearStart = System.currentTimeMillis()
                             ZipcodeService.clearZipcodes(state)
-                            println "Clear time: " + (System.currentTimeMillis() - clearStart)
 
                             // Slurp and save in Domain
                             def xml = new XmlSlurper().parse(file)
@@ -111,15 +109,15 @@ class ZipcodeService {
      * @return
      */
     static addZipcodeToState(State state, Zipcode zipcode) {
-        if (state?.id) {  // Only add to a state that exists
+        if (state) {  // Only add to a state that exists
             state.addToZipcodes(zipcode)
-            if (zipcode.validate()) {
-                state.save()
-            } else {
+            if (!zipcode.validate()) {
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
             } // if
-        }  // if
+        }  else {
+            zipcode.discard() // Get rid of the zipcode if there is no state
+        }
     }
 
 
