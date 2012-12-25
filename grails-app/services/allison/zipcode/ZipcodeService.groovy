@@ -17,7 +17,7 @@ class ZipcodeService {
 
         // Delete old xml files
         def dir = DownloadService.getCountryDir(country)
-//        FileUtils.deleteDirectory(new File(dir))
+        FileUtils.deleteDirectory(new File(dir))
 
         def file
         def address
@@ -34,7 +34,7 @@ class ZipcodeService {
             try {
 
                 // Download zip codes
-//                DownloadService.download(file, address)
+                DownloadService.download(file, address)
 
                 // Only clear the zip codes on a successful download
                 clearZipcodes(it)
