@@ -36,9 +36,7 @@ class ZipcodeService {
                     println "Downloading file: ${file}"
 
                     // Download zip codes
-                    def downloadStart = System.currentTimeMillis()
                     DownloadService.download(file, address)
-                    println "Download time: " + (System.currentTimeMillis() - downloadStart)
                     Zipcode.withTransaction {
                         State.withTransaction {
 
@@ -58,9 +56,7 @@ class ZipcodeService {
                             }
 
                             // Execute the batch save
-                            def saveStart = System.currentTimeMillis()
                             state.save(flush: true)
-                            println "State batch save zipcodes: " + (System.currentTimeMillis() - saveStart)
 
                             state = State.lock(state.id)
                             println "Num zipcodes: " + state?.zipcodes?.size()
