@@ -22,6 +22,5 @@ This software downloads the zipcodes that match a given country code (eg, countr
 
 
 # Limitations
-* Controller unit tests don't all pass
 * Validators on Zipcode class limit functionality to US format but other country codes will not break it
 
