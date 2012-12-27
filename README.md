@@ -1,6 +1,9 @@
 This software downloads the zipcodes that match a given country code (eg, country code = "US").  Version 2 downloads from each state's file.  This retrieves data for all 50 states.  Version 1 only downloads from a file for the whole US which contains only 17 states and 100 postal codes.  Version 2 has been merged from the branch "downloadByStateAbbr".
 
 # Features:
+* Version 3
+    * Parallelization offering 2x speedup
+    * Reentrant locks on load and clear ZipcodeService methods to prevent errors from concurrent execution
 * Version 2 (previously, downloadByStateAbbr Branch)
     * US added during BootStrap
     * Load zipcodes for all states
@@ -19,6 +22,6 @@ This software downloads the zipcodes that match a given country code (eg, countr
 
 
 # Limitations
-    * Controller unit tests don't all pass
-    * Validators on Zipcode class limit functionality to US format but other country codes will not break it
+* Controller unit tests don't all pass
+* Validators on Zipcode class limit functionality to US format but other country codes will not break it
 
