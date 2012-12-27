@@ -31,7 +31,7 @@ class Zipcode {
              nullable: false)
         countryCode(size: 2..2, nullable: false,
                 validator: {code, zipcode ->
-                    code == zipcode.state.country.countryCode
+                    code == zipcode.state?.country?.countryCode
                 })
         lat(min: 0d, max: 90d,
             nullable: true)
@@ -39,12 +39,12 @@ class Zipcode {
             nullable: true)
         // adminCode2 is the abbreviation of the state name
         adminCode1(nullable: false, validator: {abbr, zipcode ->
-            abbr == zipcode.state.abbreviation
+            abbr == zipcode.state?.abbreviation
             })
         // adminName1 is the full name of the state and it must match
         // the name of the state this zipcode belongs to
         adminName1(validator: {name, zipcode ->
-            name == zipcode.state.name
+            name == zipcode.state?.name
             }, nullable: false)
         adminCode2(size: 3..3,
             validator: StringUtils.stringIsIntegers,

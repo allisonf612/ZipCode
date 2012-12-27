@@ -62,6 +62,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="grails-2.1.2 (2)" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="GPars" level="project" />
     <orderEntry type="module-library" exported="">
       <library name="Grails User Library (ZipCode-grailsPlugins)">
         <CLASSES>

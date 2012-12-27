@@ -28,7 +28,6 @@ class CountryController {
 
     def load(Long id) {
         try {
-//            def country = Country.lock(id)
             zipcodeService.load(id)
         } catch (UnableToDownloadException ex) {
             flash.message = ex.message
@@ -47,7 +46,6 @@ class CountryController {
         } catch (UnableToAccess ex) {
             flash.message = ex.message
         }
-//        zipcodeService.generateTagCloud(id)
 
         redirect(action: "show", params: params)
     }
