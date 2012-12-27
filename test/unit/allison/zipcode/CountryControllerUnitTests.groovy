@@ -6,7 +6,7 @@ import org.junit.*
 import grails.test.mixin.*
 
 @TestFor(CountryController)
-@Mock(Country)
+@Mock([Country, ZipcodeService])
 class CountryControllerUnitTests {
 
     def populateValidParams(params) {
@@ -24,35 +24,23 @@ class CountryControllerUnitTests {
      * Doesn't pass
      */
     void testLoad() {
-        populateValidParams(params)
-        def country = new Country(params)
-
-        assert country.save() != null
-
-        params.id = country.id
-
+        params.id = 1
         controller.load()
 
         assert model.params == null
-        assert view == '/country/show'
+        assert response.redirectedUrl == '/country/show/1'
     }
 
     /**
      * Doesn't pass
      */
     void testClear() {
-        populateValidParams(params)
-        def country = new Country(params)
+        params.id = 1
 
-        assert country.save() != null
-
-        params.id = country.id
-
-        controller.load()
         controller.clear()
 
         assert model.params == null
-        assert view == '/country/show'
+        assert response.redirectedUrl == '/country/show/1'
     }
 
     void testList() {
