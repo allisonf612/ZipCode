@@ -37,7 +37,7 @@ class ZipcodeServiceIntegrationTests {
 
         downloadService.setGetAddressForTest()
 
-        ZipcodeService.clearZipcodes(mini.id)
+        zipcodeService.clearZipcodes(mini.id)
         assertNotNull mini
         zipcodeService.load(mini.id)
 
@@ -181,7 +181,7 @@ class ZipcodeServiceIntegrationTests {
         assertEquals 1, minnesota.zipcodes.size()
         assertEquals 1, wisconsin.zipcodes.size()
 
-        ZipcodeService.clearZipcodes(unitedStates.id)
+        zipcodeService.clearZipcodes(unitedStates.id)
 
         // Verify that the zipcodes are gone
         // and the states and country remains

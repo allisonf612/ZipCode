@@ -1,19 +1,36 @@
 package allison.zipcode
 
+
+import java.util.concurrent.locks.ReentrantLock
+
+
+class UnableToAccess extends RuntimeException {
+    String message
+}
+
+
 class ZipcodeService {
     def downloadService
+    def ReentrantLock lock = new ReentrantLock()
 
     /**
      * Download the zipcodes, add them to the Domain
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
-    def load(Long id) throws UnableToDownloadException {
+//    def load(Long id) throws UnableToDownloadException, CannotAcquireLockException {
+      def load(id) throws UnableToDownloadException, UnableToAccess {
+//        try {
+//                 def country = Country.lock(id)
+          def country = Country.get(id)
+          if (!country) {
+              throw new UnableToDownloadException(message: "Unable to find country")
+          }
 
-        def country = Country.get(id)
-        if (!country) {
-            throw new UnableToDownloadException(message: "Unable to find country")
-        }
+          if (!lock.tryLock()) {
+              throw new UnableToAccess(message: "Cannot load zipcodes for ${country}. Access is locked by another user")
+          }
+          try {
 
         // Delete old xml files
         def dir = DownloadService.getCountryDir(country)
@@ -55,7 +72,13 @@ class ZipcodeService {
         }
 
         println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
-
+//        } catch (Exception e) {
+//        } catch (CannotAcquireLockException e) {
+//            throw e//new UnableToDownloadException(message: "Another user is modifying the Country")
+//        }
+          } finally {
+              lock.unlock()
+          }
     }
 
     /**
@@ -107,15 +130,24 @@ class ZipcodeService {
      * @param id The id of the country to remove zipcodes from
      * @return
      */
-    static clearZipcodes(Long id) {
+//    static clearZipcodes(Long id) {
+    def clearZipcodes(id) throws UnableToAccess {
         def country = Country.get(id)
 
-        // For each state, for each zipcode, delete it
-        if (country?.states) {
-            country.states.each { state ->
-                clearZipcodes(state)
-            }
-        } // Nothing to do if there are no states
+        if (!lock.tryLock()) {
+            throw new UnableToAccess(message: "Cannot clear zipcodes from ${country}. Access is locked by another user")
+        }
+
+        try {
+            // For each state, for each zipcode, delete it
+            if (country?.states) {
+                country.states.each { state ->
+                    clearZipcodes(state)
+                }
+            } // Nothing to do if there are no states
+        } finally {
+            lock.unlock()
+        }
     }
 
     /**
