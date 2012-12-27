@@ -2,76 +2,89 @@ package allison.zipcode
 
 
 import groovyx.gpars.GParsPool
+import java.util.concurrent.locks.ReentrantLock
 
+
+class UnableToAccess extends RuntimeException {
+    String message
+}
 
 class ZipcodeService {
     def downloadService
-
+    def ReentrantLock lock = new ReentrantLock()
 
     /**
      * Download the zipcodes, add them to the Domain
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
-    def load(Long id) throws UnableToDownloadException {
+    def load(Long id) throws UnableToDownloadException, UnableToAccess {
 
         def country = Country.get(id)
         if (!country) {
             throw new UnableToDownloadException(message: "Unable to find country")
         }
 
-        // Delete old xml files
-        def dir = DownloadService.getCountryDir(country)
-        FileUtils.deleteDirectory(new File(dir))
+        if (!lock.tryLock()) {
+            throw new UnableToAccess(message: "Cannot load zipcodes for ${country}. Access is locked by another user")
+        }
 
-        def start = System.currentTimeMillis()
-        GParsPool.withPool {
+        try {
+            // Delete old xml files
+            def dir = DownloadService.getCountryDir(country)
+            FileUtils.deleteDirectory(new File(dir))
 
-            country.states.eachParallel { State state ->
+            def start = System.currentTimeMillis()
+            GParsPool.withPool {
 
-                def file = DownloadService.getStateFileName(state)
+                country.states.eachParallel { State state ->
 
-                try {
-                    def address = downloadService.getAddress(state)
-                    println "Downloading file: ${file}"
+                    def file = DownloadService.getStateFileName(state)
 
-                    // Download zip codes
-                    DownloadService.download(file, address)
-                    Zipcode.withTransaction {
-                        State.withTransaction {
+                    try {
+                        def address = downloadService.getAddress(state)
+                        println "Downloading file: ${file}"
 
-                            // Only clear the zip codes on a successful download
-                            ZipcodeService.clearZipcodes(state)
+                        // Download zip codes
+                        DownloadService.download(file, address)
+                        Zipcode.withTransaction {
+                            State.withTransaction {
 
-                            // Slurp and save in Domain
-                            def xml = new XmlSlurper().parse(file)
-                            def zipcodes = xml.code.collect { code ->
-                                ZipcodeService.parseZipcode(code)
-                            }
+                                // Only clear the zip codes on a successful download
+                                ZipcodeService.clearZipcodes(state)
 
-                            // Lock the state
-                            state = State.lock(state.id)
-                            zipcodes.each {
-                                ZipcodeService.addZipcodeToState(state, it)
-                            }
+                                // Slurp and save in Domain
+                                def xml = new XmlSlurper().parse(file)
+                                def zipcodes = xml.code.collect { code ->
+                                    ZipcodeService.parseZipcode(code)
+                                }
 
-                            // Execute the batch save
-                            state.save(flush: true)
+                                // Lock the state
+                                state = State.lock(state.id)
+                                zipcodes.each {
+                                    ZipcodeService.addZipcodeToState(state, it)
+                                }
 
-                            state = State.lock(state.id)
-                            println "Num zipcodes: " + state?.zipcodes?.size()
-                        } // State.withTransaction
-                    } // Zipcode.withTransaction
-                } catch (FileNotFoundException ex) {
-                    throw new UnableToDownloadException(message: "Unable to create ${file} from download")
-                } catch (UnableToDownloadException ex) {
-                    throw ex
-                }
-            } // country.states.each
-        } // withPool
+                                // Execute the batch save
+                                state.save(flush: true)
 
-        println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
+                                state = State.lock(state.id)
+                                println "Num zipcodes: " + state?.zipcodes?.size()
+                            } // State.withTransaction
+                        } // Zipcode.withTransaction
+                    } catch (FileNotFoundException ex) {
+                        throw new UnableToDownloadException(message: "Unable to create ${file} from download")
+                    } catch (UnableToDownloadException ex) {
+                        throw ex
+                    }
+                } // country.states.each
+            } // withPool
 
+            println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
+
+        } finally {
+            lock.unlock()
+        }
     }
 
     /**
@@ -122,21 +135,23 @@ class ZipcodeService {
      * @param id The id of the country to remove zipcodes from
      * @return
      */
-    static clearZipcodes(Long id) {
+    def clearZipcodes(id) throws UnableToAccess {
         def country = Country.get(id)
 
-//        if (!country) { // If the country doesn't exist, there is nothing to do
-//            return
-//        }
+        if (!lock.tryLock()) {
+            throw new UnableToAccess(message: "Cannot clear zipcodes from ${country}. Access is locked by another user")
+        }
 
-        // For each state, for each zipcode, delete it
-//        if (country.states) {
-        GParsPool.withPool {
-            country?.states?.eachParallel { state ->
-                State.withTransaction {
-                    clearZipcodes(state)
+        try {
+            GParsPool.withPool {
+                country?.states?.eachParallel { state ->
+                    State.withTransaction {
+                        clearZipcodes(state)
+                    }
                 }
             }
+        } finally {
+            lock.unlock()
         }
     }
 

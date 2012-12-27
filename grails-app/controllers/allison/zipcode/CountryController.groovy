@@ -1,6 +1,7 @@
 package allison.zipcode
 
-import org.springframework.dao.DataIntegrityViolationException
+
+import org.springframework.dao.*
 
 class CountryController {
 
@@ -32,14 +33,19 @@ class CountryController {
             flash.message = ex.message
         } catch (FileNotFoundException ex) {
             flash.message = "Unable to save data"
+        } catch (UnableToAccess ex) {
+            flash.message = ex.message
         }
 
         redirect(action: "show", params: params)
     }
 
     def clear(Long id) {
-        zipcodeService.clearZipcodes(id)
-        zipcodeService.generateTagCloud(id)
+        try {
+            zipcodeService.clearZipcodes(id)
+        } catch (UnableToAccess ex) {
+            flash.message = ex.message
+        }
 
         redirect(action: "show", params: params)
     }
