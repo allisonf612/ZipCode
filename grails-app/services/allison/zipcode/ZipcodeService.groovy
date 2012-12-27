@@ -18,10 +18,7 @@ class ZipcodeService {
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
-//    def load(Long id) throws UnableToDownloadException, CannotAcquireLockException {
       def load(id) throws UnableToDownloadException, UnableToAccess {
-//        try {
-//                 def country = Country.lock(id)
           def country = Country.get(id)
           if (!country) {
               throw new UnableToDownloadException(message: "Unable to find country")
@@ -32,50 +29,47 @@ class ZipcodeService {
           }
           try {
 
-        // Delete old xml files
-        def dir = DownloadService.getCountryDir(country)
-        FileUtils.deleteDirectory(new File(dir))
+              // Delete old xml files
+              def dir = DownloadService.getCountryDir(country)
+              FileUtils.deleteDirectory(new File(dir))
 
-        def file
-        def address
-        def xml
-        def slurper = new XmlSlurper()
+              def file
+              def address
+              def xml
+              def slurper = new XmlSlurper()
 
-        def start = System.currentTimeMillis()
-        country.states.each {
+              def start = System.currentTimeMillis()
+              country.states.each {
 
-            file = DownloadService.getStateFileName(it)
-            address = downloadService.getAddress(it)
-            println "Downloading file: ${file}"
-            try {
+                  file = DownloadService.getStateFileName(it)
+                  address = downloadService.getAddress(it)
+                  println "Downloading file: ${file}"
+                  try {
 
-                // Download zip codes
-                DownloadService.download(file, address)
+                      // Download zip codes
+                      DownloadService.download(file, address)
 
-                // Only clear the zip codes on a successful download
-                clearZipcodes(it)
+                      // Only clear the zip codes on a successful download
+                      clearZipcodes(it)
 
-                // Slurp and save in Domain
-                xml = slurper.parse(file)
-                def zipcodes = xml.code.collect { code ->
-                    def zipcode = ZipcodeService.parseZipcode(code)
-                    ZipcodeService.addZipcodeToState(it, zipcode)
-                    zipcode
-                }
+                      // Slurp and save in Domain
+                      xml = slurper.parse(file)
+                      def zipcodes = xml.code.collect { code ->
+                          def zipcode = ZipcodeService.parseZipcode(code)
+                          ZipcodeService.addZipcodeToState(it, zipcode)
+                          zipcode
+                      }
 
-                it.save(flush: true) // Save all the added zipcodes
+                      it.save(flush: true) // Save all the added zipcodes
 
-            } catch (FileNotFoundException ex) {
-                throw new UnableToDownloadException(message: "Unable to create ${file} from download")
-            }
-            println "Num zipcodes: " + it?.zipcodes?.size()
-        }
+                  } catch (FileNotFoundException ex) {
+                      throw new UnableToDownloadException(message: "Unable to create ${file} from download")
+                  }
+                  println "Num zipcodes: " + it?.zipcodes?.size()
+              }
 
-        println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
-//        } catch (Exception e) {
-//        } catch (CannotAcquireLockException e) {
-//            throw e//new UnableToDownloadException(message: "Another user is modifying the Country")
-//        }
+              println "Total time to load zipcodes: " + (System.currentTimeMillis() - start)
+
           } finally {
               lock.unlock()
           }
@@ -130,7 +124,6 @@ class ZipcodeService {
      * @param id The id of the country to remove zipcodes from
      * @return
      */
-//    static clearZipcodes(Long id) {
     def clearZipcodes(id) throws UnableToAccess {
         def country = Country.get(id)
 
