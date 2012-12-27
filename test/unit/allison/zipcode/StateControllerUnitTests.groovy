@@ -6,13 +6,22 @@ import org.junit.*
 import grails.test.mixin.*
 
 @TestFor(StateController)
-@Mock(State)
+@Mock([State, Country])
 class StateControllerUnitTests {
+    def country
+
+    void setUp() {
+        country = new Country(name: "United States of America", countryCode: "US").save()
+    }
 
     def populateValidParams(params) {
         assert params != null
         params["name"] = "Minnesota"
+        params["abbreviation"] = "MN"
+        params["countryCode"] = "US"
+        params["country"] = country
     }
+
 
     void testIndex() {
         controller.index()
@@ -40,6 +49,7 @@ class StateControllerUnitTests {
         assert view == '/state/create'
 
         response.reset()
+
 
         populateValidParams(params)
         controller.save()
@@ -100,10 +110,9 @@ class StateControllerUnitTests {
 
         // test invalid parameters in update
         params.id = state.id
-        //TODO: add invalid values to params object
+        params["countryCode"] = "CA"
 
         controller.update()
-
         assert view == "/state/edit"
         assert model.stateInstance != null
 
