@@ -47,31 +47,29 @@ class ZipcodeService {
 
                         // Download zip codes
                         DownloadService.download(file, address)
-                        Zipcode.withTransaction {
-                            State.withTransaction {
+                        State.withTransaction {
 
-                                // Only clear the zip codes on a successful download
-                                ZipcodeService.clearZipcodes(state)
+                            // Only clear the zip codes on a successful download
+                            ZipcodeService.clearZipcodes(state)
 
-                                // Slurp and save in Domain
-                                def xml = new XmlSlurper().parse(file)
-                                def zipcodes = xml.code.collect { code ->
-                                    ZipcodeService.parseZipcode(code)
-                                }
+                            // Slurp and save in Domain
+                            def xml = new XmlSlurper().parse(file)
+                            def zipcodes = xml.code.collect { code ->
+                                ZipcodeService.parseZipcode(code)
+                            }
 
-                                // Lock the state
-                                state = State.lock(state.id)
-                                zipcodes.each {
-                                    ZipcodeService.addZipcodeToState(state, it)
-                                }
+                            // Lock the state
+                            state = State.lock(state.id)
+                            zipcodes.each {
+                                ZipcodeService.addZipcodeToState(state, it)
+                            }
 
-                                // Execute the batch save
-                                state.save(flush: true)
+                            // Execute the batch save
+                            state.save(flush: true)
 
-                                state = State.lock(state.id)
-                                println "Num zipcodes: " + state?.zipcodes?.size()
-                            } // State.withTransaction
-                        } // Zipcode.withTransaction
+                            state = State.lock(state.id)
+                            println "Num zipcodes: " + state?.zipcodes?.size()
+                        } // State.withTransaction
                     } catch (FileNotFoundException ex) {
                         throw new UnableToDownloadException(message: "Unable to create ${file} from download")
                     } catch (UnableToDownloadException ex) {
