@@ -17,4 +17,5 @@ stacktrace.log
 /web-app/plugins
 /web-app/WEB-INF
 /web-app/data/*
+/web-app/source/*
 /static
