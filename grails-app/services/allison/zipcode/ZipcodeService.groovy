@@ -52,7 +52,6 @@ class ZipcodeService {
                         State.withNewSession {
                             // Only clear the zip codes on a successful download
                             ZipcodeService.clearZipcodes(state)
-                            // refresh the state since it was modified in clearZipcodes
 
                             // Parse and save in Domain
                             def xml = new XmlSlurper().parse(file)
