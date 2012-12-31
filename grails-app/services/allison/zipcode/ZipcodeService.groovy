@@ -12,6 +12,7 @@ class UnableToAccess extends RuntimeException {
 class ZipcodeService {
     def downloadService
     def ReentrantLock lock = new ReentrantLock()
+    def sessionFactory
 
     /**
      * Download the zipcodes, add them to the Domain
@@ -47,31 +48,30 @@ class ZipcodeService {
 
                         // Download zip codes
                         DownloadService.download(file, address)
-                        Zipcode.withTransaction {
-                            State.withTransaction {
 
-                                // Only clear the zip codes on a successful download
-                                ZipcodeService.clearZipcodes(state)
+                        // Start a new session to interact with the database
+                        State.withNewSession {
+                            // Only clear the zip codes on a successful download
+                            ZipcodeService.clearZipcodes(state)
+                            // refresh the state since it was modified in clearZipcodes
 
-                                // Slurp and save in Domain
-                                def xml = new XmlSlurper().parse(file)
-                                def zipcodes = xml.code.collect { code ->
-                                    ZipcodeService.parseZipcode(code)
-                                }
+                            // Parse and save in Domain
+                            def xml = new XmlSlurper().parse(file)
+                            def zipcodes = xml.code.collect { code ->
+                                ZipcodeService.parseZipcode(code)
+                            }
 
-                                // Lock the state
-                                state = State.lock(state.id)
-                                zipcodes.each {
-                                    ZipcodeService.addZipcodeToState(state, it)
-                                }
+                            // Lock the state before adding zipcodes
+                            state = State.lock(state.id)
+                            zipcodes.each {
+                                ZipcodeService.addZipcodeToState(state, it)
+                            }
 
-                                // Execute the batch save
-                                state.save(flush: true)
+                            // Execute the batch save
+                            state.save(flush: true)
 
-                                state = State.lock(state.id)
-                                println "Num zipcodes: " + state?.zipcodes?.size()
-                            } // State.withTransaction
-                        } // Zipcode.withTransaction
+                            println "Num zipcodes: " + state?.zipcodes?.size()
+                        } // State.withNewSession
                     } catch (FileNotFoundException ex) {
                         throw new UnableToDownloadException(message: "Unable to create ${file} from download")
                     } catch (UnableToDownloadException ex) {
@@ -172,6 +172,7 @@ class ZipcodeService {
                     zipcode.delete()
                 }
                 state.save(flush: true)
+
             }
 //        } // Nothing to do if there are no zipcodes
     }
