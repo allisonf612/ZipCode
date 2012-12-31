@@ -12,7 +12,6 @@ class UnableToAccess extends RuntimeException {
 class ZipcodeService {
     def downloadService
     def ReentrantLock lock = new ReentrantLock()
-    def sessionFactory
 
     /**
      * Download the zipcodes, add them to the Domain
