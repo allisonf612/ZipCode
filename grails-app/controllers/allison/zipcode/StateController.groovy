@@ -33,15 +33,27 @@ class StateController {
     def show(Long id) {
         def stateInstance
         if (params.stateName) { // This was a link from the tag cloud so translate it
-            stateInstance = ZipcodeService.getState(Country.get(id), params.stateName)
+            def country = Country.get(id)
+            if (!country) {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'country.label', default: 'Country'), id])
+                redirect(action: "list")
+                return
+            }
+            stateInstance = State.findByCountryCodeAndName(country.countryCode, params.stateName)
+            if (!stateInstance) {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'state.label', default: 'State'), params.stateName])
+                redirect(action: "list")
+                return
+            }
         } else {
             stateInstance = State.get(id)
+            if (!stateInstance) {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'state.label', default: 'State'), id])
+                redirect(action: "list")
+                return
+            }
         }
-        if (!stateInstance) {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'state.label', default: 'State'), id])
-            redirect(action: "list")
-            return
-        }
+
 
         [stateInstance: stateInstance]
     }
