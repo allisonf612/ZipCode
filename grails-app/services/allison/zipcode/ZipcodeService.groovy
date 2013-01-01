@@ -3,11 +3,9 @@ package allison.zipcode
 
 import groovyx.gpars.GParsPool
 import org.xml.sax.SAXParseException
-
 import java.util.concurrent.locks.ReentrantLock
 
-
-class UnableToAccess extends RuntimeException {
+class UnableToProcessException extends RuntimeException {
     String message
 }
 
@@ -20,15 +18,15 @@ class ZipcodeService {
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
-    def load(Long id) throws UnableToDownloadException, UnableToAccess, SAXParseException {
+    def load(Long id) throws UnableToProcessException {
 
         def country = Country.get(id)
         if (!country) {
-            throw new UnableToDownloadException(message: "Unable to find country")
+            throw new UnableToProcessException(message: "Unable to find country")
         }
 
         if (!lock.tryLock()) {
-            throw new UnableToAccess(message: "Cannot load zipcodes for ${country}. Access is locked by another user")
+            throw new UnableToProcessException(message: "Cannot load zipcodes for ${country}. Access is locked by another process")
         }
 
         try {
@@ -43,10 +41,10 @@ class ZipcodeService {
 
                     def file = DownloadService.getStateFileName(state)
 
-                    try {
-                        def address = downloadService.getAddress(state)
-                        println "Downloading file: ${file}" //+ " from: ${address}"
+                    def address = downloadService.getAddress(state)
+                    println "Downloading file: ${file}" //+ " from: ${address}"
 
+                    try {
                         // Download zip codes
                         DownloadService.download(file, address)
 
@@ -74,9 +72,11 @@ class ZipcodeService {
                             println "Num zipcodes: " + state?.zipcodes?.size()
                         } // State.withNewSession
                     } catch (FileNotFoundException ex) {
-                        throw new UnableToDownloadException(message: "Unable to create ${file} from download")
+                        throw new UnableToProcessException(message: "Unable to create ${file} from download")
                     } catch (UnableToDownloadException ex) {
-                        throw ex
+                        throw new UnableToProcessException(message: ex.message)
+                    } catch (SAXParseException ex) {
+                        throw new UnableToProcessException(message: "Unable to load.  Xml parse error: ${address}")
                     }
                 } // country.states.each
             } // withPool
@@ -136,11 +136,11 @@ class ZipcodeService {
      * @param id The id of the country to remove zipcodes from
      * @return
      */
-    def clearZipcodes(id) throws UnableToAccess {
+    def clearZipcodes(id) throws UnableToProcessException {
         def country = Country.get(id)
 
         if (!lock.tryLock()) {
-            throw new UnableToAccess(message: "Cannot clear zipcodes from ${country}. Access is locked by another user")
+            throw new UnableToProcessException(message: "Cannot clear zipcodes from ${country}. Access is locked by another process")
         }
 
         try {
