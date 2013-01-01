@@ -2,6 +2,8 @@ package allison.zipcode
 
 
 import groovyx.gpars.GParsPool
+import org.xml.sax.SAXParseException
+
 import java.util.concurrent.locks.ReentrantLock
 
 
@@ -18,7 +20,7 @@ class ZipcodeService {
      * @param id The country id for which to load the
      * @throws UnableToDownloadException
      */
-    def load(Long id) throws UnableToDownloadException, UnableToAccess {
+    def load(Long id) throws UnableToDownloadException, UnableToAccess, SAXParseException {
 
         def country = Country.get(id)
         if (!country) {
@@ -43,7 +45,7 @@ class ZipcodeService {
 
                     try {
                         def address = downloadService.getAddress(state)
-                        println "Downloading file: ${file}"
+                        println "Downloading file: ${file}" //+ " from: ${address}"
 
                         // Download zip codes
                         DownloadService.download(file, address)
@@ -52,6 +54,7 @@ class ZipcodeService {
                         State.withNewSession {
                             // Only clear the zip codes on a successful download
                             ZipcodeService.clearZipcodes(state)
+                            // refresh the state since it was modified in clearZipcodes
 
                             // Parse and save in Domain
                             def xml = new XmlSlurper().parse(file)

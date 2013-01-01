@@ -2,6 +2,7 @@ package allison.zipcode
 
 
 import org.springframework.dao.*
+import org.xml.sax.SAXParseException
 
 class CountryController {
 
@@ -35,6 +36,8 @@ class CountryController {
             flash.message = "Unable to save data"
         } catch (UnableToAccess ex) {
             flash.message = ex.message
+        } catch (SAXParseException ex) {
+            flash.message = "Could not parse xml"
         }
 
         redirect(action: "show", params: params)
