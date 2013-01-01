@@ -52,7 +52,6 @@ class ZipcodeService {
 
                         // Start a new session to interact with the database
                         State.withNewSession {
-                            State.withNewTransaction {
                             // Only clear the zip codes on a successful download
                             ZipcodeService.clearZipcodes(state)
                             // refresh the state since it was modified in clearZipcodes
@@ -73,7 +72,6 @@ class ZipcodeService {
                             state.save(flush: true)
 
                             println "Num zipcodes: " + state?.zipcodes?.size()
-                            }
                         } // State.withNewSession
                     } catch (FileNotFoundException ex) {
                         throw new UnableToDownloadException(message: "Unable to create ${file} from download")
