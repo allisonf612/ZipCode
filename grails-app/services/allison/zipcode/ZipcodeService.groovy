@@ -3,6 +3,8 @@ package allison.zipcode
 
 import groovyx.gpars.GParsPool
 import org.xml.sax.SAXParseException
+
+import java.lang.reflect.UndeclaredThrowableException
 import java.util.concurrent.locks.ReentrantLock
 
 class UnableToProcessException extends RuntimeException {
@@ -52,7 +54,6 @@ class ZipcodeService {
                         State.withNewSession {
                             // Only clear the zip codes on a successful download
                             ZipcodeService.clearZipcodes(state)
-                            // refresh the state since it was modified in clearZipcodes
 
                             // Parse and save in Domain
                             def xml = new XmlSlurper().parse(file)
@@ -75,8 +76,12 @@ class ZipcodeService {
                         throw new UnableToProcessException(message: "Unable to create ${file} from download")
                     } catch (UnableToDownloadException ex) {
                         throw new UnableToProcessException(message: ex.message)
-                    } catch (SAXParseException ex) {
-                        throw new UnableToProcessException(message: "Unable to load.  Xml parse error: ${address}")
+                    } catch (UndeclaredThrowableException ex) {
+                        if (ex.getCause() instanceof SAXParseException) {
+                            throw new UnableToProcessException(message: "Unable to load.  Xml parse error: ${address}")
+                        } else {
+                            throw new UnableToProcessException(message: "Unable to load")
+                        }
                     }
                 } // country.states.each
             } // withPool

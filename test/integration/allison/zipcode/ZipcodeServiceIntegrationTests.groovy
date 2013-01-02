@@ -14,6 +14,7 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
     def unitedStates
     def minnesota
     def wisconsin
+    def texas
 
     /**
      *
@@ -23,6 +24,7 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
         unitedStates = Country.findByCountryCode("US")
         minnesota = State.findByAbbreviation("MN")
         wisconsin = State.findByAbbreviation("WI")
+        texas = State.findByAbbreviation("TX")
     }
 
     @After
@@ -87,37 +89,86 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
 
         tearDownFauxLoad(mini)
     }
+        // Add a state with a bad(empty) download file to test
+        // exceptions
+//        zipcodeService.clearZipcodes(mini.id)
 
-    @Test
-    void testLoad() {
-        assertEquals 0, Zipcode.all.size()
+//        def state3 = new State(name: "State 3", abbreviation: "S3", countryCode: "MI")
+//        mini.addToStates(state3)
+//        mini.save(flush: true)
+//
+//        State.withNewSession {
+//            def message = shouldFail(UnableToProcessException) { zipcodeService.load(mini.id)}
+//            assertEquals "Unable to load.  Xml parse error: file:///Users/lightning/IdeaProjects/ZipCode/web-app/source/S3",
+//                message
+//        }
+//        println Zipcode.all
+//        state1.refresh()
+//        state2.refresh()
+//        mini.refresh()
+//
+//        tearDownFauxLoad(mini)
+//    }
 
-        zipcodeService.load(unitedStates.id)
-
-        // unitedStates has been modified
-        unitedStates.refresh()
-
-        assert getMNZipcode() in minnesota.zipcodes
-        assert getWIZipcode() in wisconsin.zipcodes
-    }
+//    @Test
+//    void testLoad() {
+//        assertEquals 0, Zipcode.all.size()
+//
+//        zipcodeService.load(unitedStates.id)
+//
+//        // unitedStates has been modified
+//        unitedStates.refresh()
+//
+//        assert getMNZipcode() in minnesota.zipcodes
+//        assert getWIZipcode() in wisconsin.zipcodes
+//    }
 
 
     @Test
     void testParseZipcode() {
         State.withTransaction { status ->
+            // Parsing a valid zipcode
             def xmlTest = getXmlTest()
-
             def zipcode = getTXZipcode()
 
             def xml = new XmlSlurper().parseText(xmlTest)
-            def allCodes = xml.code
-            assertEquals 1, allCodes.size()
-            assertEquals zipcode, ZipcodeService.parseZipcode(allCodes[0])
+            assertEquals zipcode, ZipcodeService.parseZipcode(xml.code)
+
+            // Parsing an invalid zipcode does not throw any error
+            // it simply does not validate
+            def xmlInvalidTest = getXmlInvalidTest()
+            def invalidZipcode = getInvalidZipcode()
+
+            def invalidXml = new XmlSlurper().parseText(xmlInvalidTest)
+            def parsedInvalidZipcode = ZipcodeService.parseZipcode(invalidXml.code)
+            assertEquals invalidZipcode, parsedInvalidZipcode
+            texas.addToZipcodes(parsedInvalidZipcode)
+            println "Validate: " + parsedInvalidZipcode.validate()
 
             // Roll everything back
             status.setRollbackOnly()
         }
+    }
 
+    /**
+     * Test the Exception thrown on an "bad download" (empty file)
+     */
+    void testParseZipcodeException() {
+        def setup = setUpFauxLoad()
+        def mini = setup[0]
+        def state1 = setup[1]
+        def state2 = setup[2]
+        def state3 = new State(name: "State 3", abbreviation: "S3", countryCode: "MI")
+        mini.addToStates(state3)
+        mini.save(flush: true)
+
+        def message = shouldFail(UnableToProcessException) { zipcodeService.load(mini.id)}
+        assertEquals "Unable to load.  Xml parse error: file:///Users/lightning/IdeaProjects/ZipCode/web-app/source/S3",
+                message
+
+        mini.refresh()
+
+        tearDownFauxLoad(mini)
     }
 
 
@@ -238,6 +289,39 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
                 "</geonames>"
     }
 
+
+    String getXmlInvalidTest() {
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<geonames>" +
+                "<totalResultsCount>43634</totalResultsCount>" +
+                "<code>" +
+                "<postalcode>75462</postalcode>" +
+                "<countryCode>US</countryCode>" +
+                "<lat>33.68045</lat>" +
+                "<lng>-95.49054</lng>" +
+                "<adminCode1>TX</adminCode1>" +
+                "<adminName1>Texas</adminName1>" +
+                "<adminCode2>277</adminCode2>" +
+                "<adminName2>Lamar</adminName2>" +
+                "<adminCode3/>" +
+                "<adminName3/>" +
+                "</code>" +
+                "</geonames>"
+    }
+
+    Zipcode getInvalidZipcode() {
+        new Zipcode (
+                postalCode: "75462",
+                name: "",
+                countryCode: "US",
+                lat: 33.68045,
+                lng: -95.49054,
+                adminCode1: "TX",
+                adminName1: "Texas",
+                adminCode2: "277",
+                adminName2: "Lamar",
+        )
+    }
 
     Zipcode getState1Zipcode() {
         new Zipcode(postalCode: "03060",
