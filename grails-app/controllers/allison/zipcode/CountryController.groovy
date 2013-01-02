@@ -32,6 +32,8 @@ class CountryController {
             zipcodeService.load(id)
         } catch (UnableToProcessException ex) {
             flash.message = ex.message
+        } catch (Exception ex) {
+            flash.message = "An unknown error occurred while loading"
         }
 
         redirect(action: "show", params: params)
@@ -42,6 +44,8 @@ class CountryController {
             zipcodeService.clearZipcodes(id)
         } catch (UnableToProcessException ex) {
             flash.message = ex.message
+        } catch (Exception ex) {
+            flash.message = "An unknown error occurred while clearing"
         }
 
         redirect(action: "show", params: params)
