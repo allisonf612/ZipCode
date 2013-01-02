@@ -89,39 +89,20 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
 
         tearDownFauxLoad(mini)
     }
-        // Add a state with a bad(empty) download file to test
-        // exceptions
-//        zipcodeService.clearZipcodes(mini.id)
 
-//        def state3 = new State(name: "State 3", abbreviation: "S3", countryCode: "MI")
-//        mini.addToStates(state3)
-//        mini.save(flush: true)
-//
-//        State.withNewSession {
-//            def message = shouldFail(UnableToProcessException) { zipcodeService.load(mini.id)}
-//            assertEquals "Unable to load.  Xml parse error: file:///Users/lightning/IdeaProjects/ZipCode/web-app/source/S3",
-//                message
-//        }
-//        println Zipcode.all
-//        state1.refresh()
-//        state2.refresh()
-//        mini.refresh()
-//
-//        tearDownFauxLoad(mini)
-//    }
 
-//    @Test
-//    void testLoad() {
-//        assertEquals 0, Zipcode.all.size()
-//
-//        zipcodeService.load(unitedStates.id)
-//
-//        // unitedStates has been modified
-//        unitedStates.refresh()
-//
-//        assert getMNZipcode() in minnesota.zipcodes
-//        assert getWIZipcode() in wisconsin.zipcodes
-//    }
+    @Test
+    void testLoad() {
+        assertEquals 0, Zipcode.all.size()
+
+        zipcodeService.load(unitedStates.id)
+
+        // unitedStates has been modified
+        unitedStates.refresh()
+
+        assert getMNZipcode() in minnesota.zipcodes
+        assert getWIZipcode() in wisconsin.zipcodes
+    }
 
 
     @Test
@@ -156,8 +137,6 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
     void testParseZipcodeException() {
         def setup = setUpFauxLoad()
         def mini = setup[0]
-        def state1 = setup[1]
-        def state2 = setup[2]
         def state3 = new State(name: "State 3", abbreviation: "S3", countryCode: "MI")
         mini.addToStates(state3)
         mini.save(flush: true)
