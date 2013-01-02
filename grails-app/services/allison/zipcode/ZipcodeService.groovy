@@ -61,14 +61,9 @@ class ZipcodeService {
                                 ZipcodeService.parseZipcode(code)
                             }
 
-                            // Lock the state before adding zipcodes
-                            state = State.lock(state.id)
-                            zipcodes.each {
-                                ZipcodeService.addZipcodeToState(state, it)
-                            }
-
-                            // Execute the batch save
-                            state.save(flush: true)
+                            // Add all the zipcodes
+                            ZipcodeService.addZipcodesToState(zipcodes, state)
+                            state.refresh()
 
                             println "Num zipcodes: " + state?.zipcodes?.size()
                         } // State.withNewSession
@@ -116,23 +111,26 @@ class ZipcodeService {
 
     }
 
+
     /**
-     * Add a zipcode to the state or discard it if it is not
-     * valid
-     * @param state The state to add the zipcode to
-     * @param zipcode The zipcode to add
+     * Add a list of zipcodes to the state
+     * @param zipcodes The list of zipcodes to add
+     * @param state The state to add the zipcodes to
      * @return
      */
-    static addZipcodeToState(State state, Zipcode zipcode) {
-        if (state) {  // Only add to a state that exists
+    static addZipcodesToState(List<Zipcode> zipcodes, State state) {
+        // Lock the state before adding zipcodes
+        state = State.lock(state.id)
+        zipcodes.each { zipcode ->
             state.addToZipcodes(zipcode)
             if (!zipcode.validate()) {
                 state.removeFromZipcodes(zipcode)
                 zipcode.discard()
             } // if
-        }  else {
-            zipcode.discard() // Get rid of the zipcode if there is no state
         }
+
+        // Execute the batch save
+        state.save(flush: true)
     }
 
 
@@ -168,18 +166,17 @@ class ZipcodeService {
      * @return
      */
     static clearZipcodes(State state) {
-            def tmp = []
-            state = State.lock(state.id)
-            if (state?.zipcodes) {
-                tmp.addAll(state.zipcodes)
-                tmp.each { zipcode ->
-                    state.removeFromZipcodes(zipcode)
-                    zipcode = Zipcode.lock(zipcode.id)
-                    zipcode.delete()
-                }
-                state.save(flush: true)
+        def tmp = []
+        state = State.lock(state.id)
+        if (state.zipcodes) {
+            tmp.addAll(state.zipcodes)
+            tmp.each { zipcode ->
+                state.removeFromZipcodes(zipcode)
+                zipcode = Zipcode.lock(zipcode.id)
+                zipcode.delete()
             }
-//        } // Nothing to do if there are no zipcodes
+            state.save(flush: true)
+        }
     }
 
     /**
