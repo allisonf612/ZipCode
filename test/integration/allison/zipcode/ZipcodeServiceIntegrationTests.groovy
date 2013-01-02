@@ -152,7 +152,7 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
 
 
     @Test
-    void testAddZipcodeToState() {
+    void testAddZipcodesToState() {
         State.withTransaction { status ->
             def validZipcode = getMNZipcode()
 
@@ -164,17 +164,12 @@ class ZipcodeServiceIntegrationTests extends GroovyTestCase {
 
             // successful add of valid zipcode
             assertFalse validZipcode in minnesota.zipcodes
-            ZipcodeService.addZipcodeToState(minnesota, validZipcode)
+            ZipcodeService.addZipcodesToState([validZipcode], minnesota)
             assertTrue validZipcode in minnesota.zipcodes
 
             // Unsuccessful add of invalid zipcode
-            ZipcodeService.addZipcodeToState(wisconsin, invalidZipcode)
+            ZipcodeService.addZipcodesToState([invalidZipcode], wisconsin)
             assertFalse invalidZipcode in wisconsin.zipcodes
-
-            // Teardown
-            minnesota.removeFromZipcodes(validZipcode)
-            validZipcode.discard()
-            invalidZipcode.discard()
 
             // Rollback the transaction
             status.setRollbackOnly()
