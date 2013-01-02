@@ -30,14 +30,10 @@ class CountryController {
     def load(Long id) {
         try {
             zipcodeService.load(id)
-        } catch (UnableToDownloadException ex) {
+        } catch (UnableToProcessException ex) {
             flash.message = ex.message
-        } catch (FileNotFoundException ex) {
-            flash.message = "Unable to save data"
-        } catch (UnableToAccess ex) {
-            flash.message = ex.message
-        } catch (SAXParseException ex) {
-            flash.message = "Could not parse xml"
+        } catch (Exception ex) {
+            flash.message = "An unknown error occurred while loading"
         }
 
         redirect(action: "show", params: params)
@@ -46,8 +42,10 @@ class CountryController {
     def clear(Long id) {
         try {
             zipcodeService.clearZipcodes(id)
-        } catch (UnableToAccess ex) {
+        } catch (UnableToProcessException ex) {
             flash.message = ex.message
+        } catch (Exception ex) {
+            flash.message = "An unknown error occurred while clearing"
         }
 
         redirect(action: "show", params: params)
