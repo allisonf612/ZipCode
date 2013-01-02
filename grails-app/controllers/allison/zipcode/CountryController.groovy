@@ -1,5 +1,6 @@
 package allison.zipcode
 
+import org.hibernate.AssertionFailure
 import org.springframework.dao.*
 
 class CountryController {
@@ -30,8 +31,11 @@ class CountryController {
             zipcodeService.load(id)
         } catch (UnableToProcessException ex) {
             flash.message = ex.message
+        } catch (AssertionFailure ex) {
+            println "Ignoring Hibernate AssertionFailure"
         } catch (Exception ex) {
             flash.message = "An unknown error occurred while loading"
+            println "Exception thrown from CountryCountroller.load: ${ex.class}\n${ex.stackTrace}"
         }
 
         redirect(action: "show", params: params)
@@ -42,8 +46,11 @@ class CountryController {
             zipcodeService.clearZipcodes(id)
         } catch (UnableToProcessException ex) {
             flash.message = ex.message
+        } catch (AssertionFailure ex) {
+            println "Ignoring Hibernate AssertionFailure"
         } catch (Exception ex) {
             flash.message = "An unknown error occurred while clearing"
+            println "Exception thrown from CountryCountroller.clear: ${ex.class}\n${ex.stackTrace}"
         }
 
         redirect(action: "show", params: params)
